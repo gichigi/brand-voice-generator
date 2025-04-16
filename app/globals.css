@@ -1,0 +1,308 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+
+  /* Apply Inter font to the body and all elements */
+  body {
+    @apply font-inter;
+  }
+
+  /* Ensure the generated content uses Inter font */
+  .font-inter {
+    font-family: "Inter", sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Animation for settings panel */
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-in {
+  animation-duration: 500ms; /* Slower animation */
+  animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: forwards;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}
+
+/* Typewriter effect */
+.typewriter-content {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Ensure dropdowns appear above other content */
+.radix-dropdown-content {
+  z-index: 1000 !important;
+}
+
+/* Ensure the dropdown trigger is clickable */
+[data-radix-dropdown-trigger] {
+  cursor: pointer;
+}
+
+/* Improve typewriter effect */
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animate-typing {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 2s steps(40, end);
+}
+
+/* Brand voice highlight colors */
+.highlight-authentic {
+  text-decoration: underline;
+  text-decoration-color: rgb(59, 130, 246);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.highlight-empathetic {
+  text-decoration: underline;
+  text-decoration-color: rgb(34, 197, 94);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.highlight-innovative {
+  text-decoration: underline;
+  text-decoration-color: rgb(168, 85, 247);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+/* Add Inter font class */
+.font-inter {
+  font-family: "Inter", sans-serif;
+}
+
+/* LinkedIn post styling */
+.linkedin-post p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.linkedin-post {
+  font-size: 1.05rem;
+}
+
+/* Equal height containers */
+@media (min-width: 1024px) {
+  .content-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content-details,
+  .content-preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content-details-inner,
+  .content-preview-inner {
+    flex: 1;
+    overflow: auto;
+  }
+}
+
+/* Add these neobrutalist styles at the end of the file */
+
+/* Neobrutalist styles */
+.neo-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.neo-section {
+  border: 3px solid #000;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.neo-card {
+  border: 3px solid #000;
+  background-color: #fff;
+  transition: transform 0.2s;
+}
+
+.neo-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 6px 6px 0 0 #000;
+}
+
+.neo-button {
+  background-color: #fff;
+  color: #000;
+  border: 3px solid #000;
+  padding: 0.5rem 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.neo-button:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 0 #000;
+}
+
+.neo-button-primary {
+  background-color: #ff90e8;
+  color: #000;
+}
+
+.neo-button-secondary {
+  background-color: #90ceff;
+  color: #000;
+}
+
+.neo-accent-1 {
+  background-color: #b4ff9f;
+}
+
+.neo-accent-2 {
+  background-color: #ff90e8;
+}
+
+.neo-accent-3 {
+  background-color: #90ceff;
+}
+
+.neo-accent-4 {
+  background-color: #ffc900;
+}
+
+.neo-tag {
+  display: inline-block;
+  background-color: #ff90e8;
+  color: #000;
+  border: 3px solid #000;
+  padding: 0.25rem 0.75rem;
+  font-weight: bold;
+  transform: rotate(-2deg);
+}
+
+.neo-title {
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.neo-highlight {
+  background-color: #90ceff;
+  padding: 0 0.25rem;
+}
+
+.neo-border-bottom {
+  border-bottom: 3px solid #000;
+}
+
+.neo-border-top {
+  border-top: 3px solid #000;
+}
+
+.neo-feature-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background-color: #b4ff9f;
+  border: 3px solid #000;
+}
+
+.neo-testimonial {
+  border: 3px solid #000;
+  padding: 1.5rem;
+  position: relative;
+}
+
+.neo-pricing {
+  border: 3px solid #000;
+  padding: 1.5rem;
+}
+
+.neo-coming-soon {
+  position: absolute;
+  top: -10px;
+  right: 10px;
+  background: #ffc900;
+  color: #000;
+  padding: 0.25rem 0.75rem;
+  border: 3px solid #000;
+  transform: rotate(3deg);
+  font-weight: bold;
+  z-index: 10;
+}

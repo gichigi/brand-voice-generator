@@ -1,0 +1,24 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model BrandVoice {
+  id               String           @id @default(cuid())
+  executiveSummary String
+  pillars          BrandVoicePillar[]
+}
+
+model BrandVoicePillar {
+  id          String   @id @default(cuid())
+  title       String
+  means       String[]
+  doesntMean  String[]
+  inspiration String
+  brandVoice  BrandVoice @relation(fields: [brandVoiceId], references: [id])
+  brandVoiceId String
+}
