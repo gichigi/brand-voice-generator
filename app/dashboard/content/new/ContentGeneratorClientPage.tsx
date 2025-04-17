@@ -227,7 +227,7 @@ export default function ContentGeneratorClientPage() {
           } catch (error) {
             console.error("[ContentGenerator] Error applying brand voice highlights:", error);
             setGeneratedContent(content);
-            setDebugInfo(`Generated ${count} words. Error applying brand voice highlights: ${error.message}`);
+            setDebugInfo(`Generated ${count} words. Error applying brand voice highlights: ${error instanceof Error ? error.message : String(error)}`);
           }
         } else {
           // No brand voice data, just set the content
@@ -239,7 +239,7 @@ export default function ContentGeneratorClientPage() {
       }
     } catch (error) {
       console.error("Error generating content:", error);
-      setDebugInfo(`Error: ${error.message || "An unexpected error occurred"}`);
+      setDebugInfo(`Error: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsGeneratingContent(false);
     }
