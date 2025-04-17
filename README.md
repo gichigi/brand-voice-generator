@@ -15,8 +15,7 @@ An AI-powered platform that helps businesses create consistent, on-brand content
 - **Frontend**: Next.js 15.2, React 19.1
 - **Styling**: Tailwind CSS, Radix UI
 - **AI Integration**: OpenAI API
-- **Database**: Convex
-- **Authentication**: Clerk/Auth0
+- **Storage**: Local Storage
 
 ## Getting Started
 
@@ -50,7 +49,6 @@ An AI-powered platform that helps businesses create consistent, on-brand content
 bvg/
 ├── app/             # Next.js app directory
 ├── components/      # Reusable UI components
-├── convex/         # Convex database setup
 ├── hooks/          # Custom React hooks
 ├── lib/            # Utility functions
 ├── public/         # Static assets

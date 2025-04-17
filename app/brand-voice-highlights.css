@@ -29,10 +29,53 @@
   transform: scaleX(1);
 }
 
-/* Hover effect */
-.brand-voice-highlight:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-  cursor: help;
+/* Remove hover effect from pillar badges */
+.brand-voice-pillar {
+  cursor: default !important;
+}
+
+.brand-voice-pillar:hover {
+  opacity: 1 !important;
+}
+
+/* Remove old hover tooltip since we're using HoverCard */
+.brand-voice-highlight:hover::before {
+  display: none;
+}
+
+/* HoverCard content styling */
+.highlight-hover-content {
+  max-width: 300px;
+  padding: 15px;
+  border-radius: 6px;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  animation: slideUpAndFade 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.highlight-hover-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #1a1a1a;
+}
+
+.highlight-hover-explanation {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #666;
+  margin: 0;
+}
+
+@keyframes slideUpAndFade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Three consistent colors that match the Tailwind colors used in the legend */

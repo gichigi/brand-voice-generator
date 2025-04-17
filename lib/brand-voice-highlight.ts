@@ -2,14 +2,23 @@ import { BrandVoiceHighlight } from "./types"
 
 // Function to apply highlights to HTML content
 export function applyHighlightsToHtml(html: string, highlights: BrandVoiceHighlight[]): string {
-  if (!html || !highlights.length) return html;
+  // Early return if no content
+  if (!html) return html;
   
-  console.log("[applyHighlightsToHtml] Input:", { htmlLength: html.length, highlights: highlights.length });
+  // Ensure highlights is an array (but can be empty)
+  const safeHighlights = Array.isArray(highlights) ? highlights : [];
+  
+  if (safeHighlights.length === 0) {
+    console.log("[applyHighlightsToHtml] No highlights to apply");
+    return html;
+  }
+  
+  console.log("[applyHighlightsToHtml] Input:", { htmlLength: html.length, highlights: safeHighlights.length });
   
   let highlightedHtml = html;
   
   // Sort highlights by length (longest first) to avoid nested highlights
-  const sortedHighlights = [...highlights].sort((a, b) => b.text.length - a.text.length);
+  const sortedHighlights = [...safeHighlights].sort((a, b) => b.text.length - a.text.length);
   
   for (const highlight of sortedHighlights) {
     try {
@@ -39,8 +48,18 @@ export function applyHighlightsToHtml(html: string, highlights: BrandVoiceHighli
       
       console.log(`[applyHighlightsToHtml] Normalized pillar index from ${rawPillarIndex} to ${normalizedPillarIndex}`);
       
-      // Create the HTML for the highlighted span with pillar-specific class
-      const highlightHtml = `<span class="brand-voice-highlight pillar-${normalizedPillarIndex}" title="${highlight.explanation}" data-highlight-id="${highlightId}" data-pillar-index="${normalizedPillarIndex}">${highlight.text}</span>`;
+      // Create the HTML for the highlighted span with data attributes for React to use
+      const highlightHtml = `
+        <span 
+          class="brand-voice-highlight pillar-${normalizedPillarIndex}" 
+          data-highlight-id="${highlightId}" 
+          data-pillar-index="${normalizedPillarIndex}"
+          data-pillar-title="${highlight.pillarTitle || ''}"
+          data-explanation="${highlight.explanation || ''}"
+        >
+          ${highlight.text}
+        </span>
+      `.trim().replace(/\s+/g, ' ');
       
       // Replace only if the text exists in the HTML
       if (new RegExp(escapedText, 'i').test(highlightedHtml)) {
