@@ -11,6 +11,7 @@ interface HighlightedContentProps {
   highlights: BrandVoiceHighlight[]
   brandVoice?: BrandVoice
   showLegend?: boolean
+  className?: string
 }
 
 function getBrandVoicePillars(highlights: BrandVoiceHighlight[], brandVoice?: BrandVoice) {
@@ -36,6 +37,7 @@ export function HighlightedContent({
   highlights,
   brandVoice,
   showLegend = true,
+  className
 }: HighlightedContentProps) {
   const [htmlContent, setHtmlContent] = useState<React.ReactNode | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
@@ -132,6 +134,32 @@ export function HighlightedContent({
           margin-bottom: 0.5em;
         }
         
+        /* Ensure the brand voice highlight spans are styled properly */
+        .highlighted-content .brand-voice-highlight {
+          text-decoration: underline;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 4px;
+          display: inline;
+          padding: 0;
+          border-radius: 0;
+          background-color: transparent;
+        }
+        
+        .highlighted-content .brand-voice-highlight.pillar-0 {
+          text-decoration-color: #3b82f6;
+          background-color: rgba(219, 234, 254, 0.2);
+        }
+        
+        .highlighted-content .brand-voice-highlight.pillar-1 {
+          text-decoration-color: #22c55e;
+          background-color: rgba(220, 252, 231, 0.2);
+        }
+        
+        .highlighted-content .brand-voice-highlight.pillar-2 {
+          text-decoration-color: #a855f7;
+          background-color: rgba(243, 232, 255, 0.2);
+        }
+        
         /* Fix for any elements that might break the layout */
         .highlighted-content * {
           max-width: 100%;
@@ -142,31 +170,15 @@ export function HighlightedContent({
   }, []);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        {title && <h2 className="text-xl font-semibold">{title}</h2>}
-        {showLegend && pillars.length > 0 && <BrandVoiceLegend pillars={pillars} />}
-      </div>
-      <div className="space-y-2">
-        {highlights.map((highlight, index) => (
-          <div
-            key={highlight.id || index}
-            className={`rounded-lg p-4 ${
-              highlight.pillarIndex !== undefined
-                ? [
-                    "bg-blue-50 dark:bg-blue-950",
-                    "bg-green-50 dark:bg-green-950",
-                    "bg-purple-50 dark:bg-purple-950",
-                  ][highlight.pillarIndex % 3]
-                : ""
-            }`}
-          >
-            <p className="text-sm">{highlight.text}</p>
-            {highlight.explanation && (
-              <p className="mt-2 text-sm text-muted-foreground">{highlight.explanation}</p>
-            )}
-          </div>
-        ))}
+    <div className={cn("space-y-4", className)}>
+      {showLegend && pillars.length > 0 && (
+        <div className="flex items-center gap-4">
+          {title && <h2 className="text-xl font-semibold">{title}</h2>}
+          <BrandVoiceLegend pillars={pillars} />
+        </div>
+      )}
+      <div className="highlighted-content">
+        {htmlContent}
       </div>
     </div>
   )

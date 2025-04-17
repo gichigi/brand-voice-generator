@@ -72,6 +72,7 @@ export default function ContentGeneratorClientPage() {
   
   // Add state for highlighting
   const [brandVoiceDataForHighlighting, setBrandVoiceDataForHighlighting] = useState<any>(null)
+  const [highlights, setHighlights] = useState<any[]>([])
   
   // Add effect to load brand voice data on mount
   useEffect(() => {
@@ -203,6 +204,9 @@ export default function ContentGeneratorClientPage() {
               console.log(`[ContentGenerator] Received ${highlights.length} highlights from analyze-brand-voice API`);
               
               if (highlights && highlights.length > 0) {
+                // Store the highlights
+                setHighlights(highlights);
+                
                 // Apply the highlights to the content directly using the imported function
                 const highlightedContent = applyHighlightsToHtml(content, highlights);
                 
@@ -393,6 +397,7 @@ export default function ContentGeneratorClientPage() {
                 ) : (
                   <HighlightedContent
                     content={generatedContent}
+                    highlights={highlights}
                     brandVoice={brandVoiceDataForHighlighting}
                     className={`min-h-[400px] border rounded-md p-6 bg-white dark:bg-slate-900 dark:text-slate-100 overflow-auto font-inter ${contentType === "linkedin-post" ? "linkedin-post" : ""}`}
                     showLegend={true}
