@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+// Import globals.css first, then component-specific CSS
 import './globals.css'
 import './brand-voice-highlights.css'
 
