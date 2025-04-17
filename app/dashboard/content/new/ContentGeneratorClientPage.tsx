@@ -10,7 +10,19 @@ import { Textarea } from "@/components/ui/textarea"
 import { Loader2 } from "lucide-react"
 import { generateContent } from "@/app/actions/generate-content"
 import { HighlightedContent } from "@/components/highlighted-content"
-import { applyHighlightsToHtml, type BrandVoiceHighlight } from "@/lib/brand-voice-highlight"
+import { applyHighlightsToHtml } from "@/lib/brand-voice-highlight"
+import { BrandVoiceHighlight } from "@/lib/types"
+
+interface ContentTypeOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
+interface ContentLengthOption {
+  value: string;
+  label: string;
+}
 
 // Create basic utilities needed (simplified versions)
 function cleanHtmlContent(htmlContent: string): string {
@@ -29,6 +41,18 @@ function countWordsInHtml(html: string): number {
   const text = tempElement.textContent || tempElement.innerText || "";
   return text.split(/\s+/).filter(word => word.length > 0).length;
 }
+
+const blogLengthOptions: ContentLengthOption[] = [
+  { value: 'short', label: 'Short (300-400 words)' },
+  { value: 'medium', label: 'Medium (400-500 words)' },
+  { value: 'long', label: 'Long (500-600 words)' },
+];
+
+const linkedinLengthOptions: ContentLengthOption[] = [
+  { value: 'short', label: 'Short (80-120 words)' },
+  { value: 'medium', label: 'Medium (150-250 words)' },
+  { value: 'long', label: 'Long (250-350 words)' },
+];
 
 export default function ContentGeneratorClientPage() {
   // Basic state variables for form
@@ -271,9 +295,19 @@ export default function ContentGeneratorClientPage() {
                     <SelectValue placeholder="Select length" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="short">Short</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="long">Long</SelectItem>
+                    {contentType === "blog-post" ? (
+                      blogLengthOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      linkedinLengthOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))
+                    )}
                   </SelectContent>
                 </Select>
               </div>
