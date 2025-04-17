@@ -1,7 +1,6 @@
 "use server"
 
-import { openai } from "@ai-sdk/openai"
-import { generateText } from "ai"
+import { openai, generateText } from "@ai-sdk/openai"
 import { fetchReferenceUrl } from "./fetch-reference-url"
 
 // Word count to token mapping (approximate)
