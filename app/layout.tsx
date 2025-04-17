@@ -3,8 +3,8 @@ import './globals.css'
 import './brand-voice-highlights.css'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Choir - Harmonize Your Brand Voice with AI',
+  description: 'Bring harmony to your content creation. Choir helps you find and maintain your perfect brand voice across all channels.',
   generator: 'v0.dev',
 }
 

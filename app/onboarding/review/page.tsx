@@ -153,7 +153,7 @@ export default function Review() {
           <div className="flex items-center gap-2 font-bold text-xl">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              <span>Brand Voice Generator</span>
+              <span>Choir</span>
             </Link>
           </div>
         </div>

@@ -23,7 +23,7 @@ export default function Home() {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span>Brand Voice Generator</span>
+            <span>Choir</span>
           </div>
           <div className="flex items-center gap-4">
             {isLoading ? (
@@ -383,9 +383,9 @@ export default function Home() {
         <div className="container flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2 font-semibold">
             <Sparkles className="h-5 w-5 text-primary" />
-            <span>Brand Voice Generator</span>
+            <span>Choir</span>
           </div>
-          <p className="text-sm text-muted-foreground">© 2025 Brand Voice Generator. All rights reserved.</p>
+          <p className="text-sm text-muted-foreground">© 2025 Choir. All rights reserved.</p>
         </div>
       </footer>
     </div>

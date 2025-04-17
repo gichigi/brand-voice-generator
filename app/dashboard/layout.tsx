@@ -50,7 +50,7 @@ export default function DashboardLayout({
           <div className="flex items-center gap-2 font-bold text-lg sm:text-xl">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              <span className="truncate">Brand Voice Generator</span>
+              <span className="truncate">Choir</span>
             </Link>
           </div>
 

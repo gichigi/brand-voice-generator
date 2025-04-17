@@ -7,7 +7,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2 font-bold text-xl">
           <Sparkles className="h-5 w-5 text-primary" />
-          <span>Brand Voice Generator</span>
+          <span>Choir</span>
         </Link>
       </div>
     </header>
