@@ -6,7 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2 } from "lucide-react"
-import { analyzeOnboardingWebsite } from "@/app/actions/analyze-onboarding-website"
+import { analyzeWebsite } from "@/app/actions/analyze-website"
 import { useToast } from "@/components/ui/use-toast"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
@@ -29,7 +29,7 @@ export function WebsiteAnalyzer({ description, onDescriptionChange }: WebsiteAna
     setAnalysisError(null)
 
     try {
-      const result = await analyzeOnboardingWebsite(websiteUrl)
+      const result = await analyzeWebsite(websiteUrl)
 
       if (result.error) {
         setAnalysisError(result.error)

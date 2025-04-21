@@ -78,8 +78,10 @@ export const toast = ({ title, description, variant = "default", duration = 5000
     if (typeof description === "string") {
       // Check if this is a content saved/updated notification
       if (
-        description.toLowerCase().includes("has been saved") ||
-        description.toLowerCase().includes("has been updated")
+        (description.toLowerCase().includes("has been saved") ||
+          description.toLowerCase().includes("has been updated")) &&
+        !description.toLowerCase().includes("pillar") &&
+        !description.toLowerCase().includes("brand voice")
       ) {
         // Create a paragraph for the description text
         descElement.textContent = description.replace(/\s+view in library/i, "")

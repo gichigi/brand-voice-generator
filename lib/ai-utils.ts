@@ -1,4 +1,4 @@
-import { generateText } from "@ai-sdk/openai"
+import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
 
 // Export them to make them available to other modules

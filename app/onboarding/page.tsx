@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -101,6 +101,21 @@ export default function Onboarding() {
   })
   const [checkingStatus, setCheckingStatus] = useState(true)
 
+  // Add refs for auto-expanding textareas
+  const businessDescriptionRef = useRef<HTMLTextAreaElement>(null)
+  const additionalInfoRef = useRef<HTMLTextAreaElement>(null)
+
+  // Auto-resize textarea function
+  const autoResizeTextarea = (textarea: HTMLTextAreaElement | null) => {
+    if (!textarea) return
+
+    // Reset height to auto to get the correct scrollHeight
+    textarea.style.height = "auto"
+
+    // Set the height to match the content (add a small buffer to prevent scrollbar flicker)
+    textarea.style.height = `${textarea.scrollHeight + 2}px`
+  }
+
   // Check if onboarding is already completed
   useEffect(() => {
     if (isOnboardingCompleted()) {
@@ -119,8 +134,28 @@ export default function Onboarding() {
     }
   }, [])
 
+  // Auto-resize textareas when they change or when step changes
+  useEffect(() => {
+    if (currentStep === 1 && businessDescriptionRef.current) {
+      autoResizeTextarea(businessDescriptionRef.current)
+    }
+
+    if (currentStep === 4 && additionalInfoRef.current) {
+      autoResizeTextarea(additionalInfoRef.current)
+    }
+  }, [currentStep, formData.businessDescription, formData.additionalInfo])
+
   const handleInputChange = (id: string, value: string | string[]) => {
     setFormData((prev) => ({ ...prev, [id]: value }))
+
+    // Auto-resize textarea if it's the one being changed
+    if (id === "businessDescription" && businessDescriptionRef.current) {
+      setTimeout(() => autoResizeTextarea(businessDescriptionRef.current), 0)
+    }
+
+    if (id === "additionalInfo" && additionalInfoRef.current) {
+      setTimeout(() => autoResizeTextarea(additionalInfoRef.current), 0)
+    }
   }
 
   const handleNext = () => {
@@ -241,7 +276,7 @@ export default function Onboarding() {
           <div className="flex items-center gap-2 font-bold text-xl">
             <Link href="/" className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              <span>Brand Voice Generator</span>
+              <span>Choir</span>
             </Link>
           </div>
         </div>
@@ -298,6 +333,13 @@ export default function Onboarding() {
                       value={(formData[field.id] as string) || ""}
                       onChange={(e) => handleInputChange(field.id, e.target.value)}
                       className="resize-none min-h-[120px]"
+                      ref={
+                        field.id === "businessDescription"
+                          ? businessDescriptionRef
+                          : field.id === "additionalInfo"
+                            ? additionalInfoRef
+                            : null
+                      }
                     />
                     {field.id === "businessDescription" && (
                       <div className="text-xs text-muted-foreground">

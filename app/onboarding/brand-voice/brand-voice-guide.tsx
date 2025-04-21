@@ -9,6 +9,34 @@ import { LoadingMessages } from "@/components/loading-messages"
 import { toast } from "sonner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
+// Define the consistent fallback brand voice
+const FALLBACK_BRAND_VOICE = {
+  executiveSummary: "Our brand voice is vibrant, empathetic, and action-oriented.",
+  pillars: [
+    {
+      id: "fallback-1",
+      title: "Vibrant",
+      means: ["Use colorful language", "Create vivid imagery", "Energize the reader"],
+      doesntMean: ["Overly casual", "Unprofessional", "Exaggerated"],
+      inspiration: "We bring ideas to life with dynamic, colorful expression.",
+    },
+    {
+      id: "fallback-2",
+      title: "Empathetic",
+      means: ["Acknowledge feelings", "Show understanding", "Connect personally"],
+      doesntMean: ["Overly emotional", "Presumptuous", "Insincere"],
+      inspiration: "We genuinely understand and address our audience's needs and concerns.",
+    },
+    {
+      id: "fallback-3",
+      title: "Action-Oriented",
+      means: ["Use strong verbs", "Provide clear next steps", "Inspire movement"],
+      doesntMean: ["Demanding", "Pushy", "Unrealistic"],
+      inspiration: "We motivate readers to take meaningful action through powerful calls to action.",
+    },
+  ],
+}
+
 interface BrandVoiceGuideProps {
   businessName: string
   yearFounded: string
@@ -40,65 +68,16 @@ export function BrandVoiceGuide({
 
   // Define color schemes for different pillar types
   const pillarColors = [
-    { color: "bg-blue-100 text-blue-700 border-blue-200", bgColor: "bg-blue-50" },
-    { color: "bg-green-100 text-green-700 border-green-200", bgColor: "bg-green-50" },
-    { color: "bg-purple-100 text-purple-700 border-purple-200", bgColor: "bg-purple-50" },
-    { color: "bg-amber-100 text-amber-700 border-amber-200", bgColor: "bg-amber-50" },
-    { color: "bg-rose-100 text-rose-700 border-rose-200", bgColor: "bg-rose-50" },
-    { color: "bg-teal-100 text-teal-700 border-teal-200", bgColor: "bg-teal-50" },
+    { color: "bg-blue-100 text-blue-700 border-blue-300", bgColor: "bg-blue-50" },
+    { color: "bg-green-100 text-green-700 border-green-300", bgColor: "bg-green-50" },
+    { color: "bg-purple-100 text-purple-700 border-purple-300", bgColor: "bg-purple-50" },
+    { color: "bg-amber-100 text-amber-700 border-amber-300", bgColor: "bg-amber-50" },
+    { color: "bg-rose-100 text-rose-700 border-rose-300", bgColor: "bg-rose-50" },
+    { color: "bg-teal-100 text-teal-700 border-teal-300", bgColor: "bg-teal-50" },
   ]
 
   // Use the generated pillars if available, otherwise use default pillars
-  const brandVoicePillars = generatedData?.pillars || [
-    {
-      id: "bold",
-      title: "Bold",
-      means: [
-        "Use declarative sentences and strong verbs that convey confidence in your writing",
-        "Make clear, definitive statements without hedging words like 'perhaps' or 'maybe'",
-        "Address challenging topics directly with a confident perspective that aligns with your values",
-      ],
-      doesntMean: [
-        "Using aggressive or confrontational language that alienates readers",
-        "Making exaggerated claims or using hyperbole that undermines credibility",
-        "Dismissing alternative viewpoints or using an arrogant tone in your content",
-      ],
-      inspiration:
-        "Nike – Their written content uses short, powerful sentences with strong verbs. Their blog posts and social media copy make definitive statements that inspire action without being aggressive.",
-    },
-    {
-      id: "conversational",
-      title: "Conversational",
-      means: [
-        "Write as if you're speaking directly to one reader, using 'you' and 'we' pronouns frequently",
-        "Incorporate rhetorical questions to engage readers and create a dialogue-like flow",
-        "Use contractions, everyday language, and occasional colloquialisms to sound approachable",
-      ],
-      doesntMean: [
-        "Using slang or informal language that undermines your expertise or professionalism",
-        "Writing rambling, unfocused content that lacks structure or purpose",
-        "Adopting an overly casual tone that doesn't match your brand's authority level",
-      ],
-      inspiration:
-        "Mailchimp – Their help documentation and marketing content reads like a knowledgeable friend explaining concepts clearly. They balance approachability with expertise in their writing style.",
-    },
-    {
-      id: "precise",
-      title: "Precise",
-      means: [
-        "Choose specific, descriptive words instead of vague terms to communicate with clarity",
-        "Structure content with logical progression and clear transitions between ideas",
-        "Include relevant details and examples that illustrate concepts concretely",
-      ],
-      doesntMean: [
-        "Overloading content with technical jargon that confuses your target audience",
-        "Writing overly complex sentences with unnecessary words or phrases",
-        "Being so detailed that readers lose sight of the main message or purpose",
-      ],
-      inspiration:
-        "Apple – Their product descriptions use precise, carefully chosen words to communicate features and benefits. They balance technical accuracy with accessibility in their writing.",
-    },
-  ]
+  const brandVoicePillars = generatedData?.pillars || FALLBACK_BRAND_VOICE.pillars
 
   // Add color information to the pillars if using generated data
   const coloredPillars = (generatedData?.pillars || brandVoicePillars).map((pillar, index) => {
@@ -252,7 +231,7 @@ export function BrandVoiceGuide({
       {/* Executive Summary */}
       <Card className="border shadow-sm">
         <CardHeader>
-          <CardTitle className="text-xl">Executive Summary for Written Content</CardTitle>
+          <CardTitle className="text-xl">Summary</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="prose prose-slate max-w-none">

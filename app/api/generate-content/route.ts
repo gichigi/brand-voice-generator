@@ -10,18 +10,23 @@ const openai = new OpenAI({
 
 export async function POST(req: Request): Promise<Response> {
   try {
-    // Extract the `prompt` from the body of the request.
-    const { prompt } = await req.json()
+    // Extract the prompt data from the body of the request.
+    const { prompt, systemMessage, assistantMessage } = await req.json()
 
     if (!prompt) {
       return new Response("No prompt in the request", { status: 400 })
     }
 
-    // Ask OpenAI for a streaming chat completion given the prompt
+    // Ask OpenAI for a streaming chat completion using messages format
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [{ role: "user", content: prompt }],
-      stream: true,
+      messages: [
+        { role: "system", content: systemMessage || "You are a helpful content generator." },
+        { role: "assistant", content: assistantMessage || "" },
+        { role: "user", content: prompt },
+      ],
+      stream: false,
+      temperature: 0.3,
     })
 
     // Create a ReadableStream from the OpenAI response

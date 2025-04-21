@@ -1,6 +1,7 @@
 "use server"
 
-import { openai, generateText } from "@ai-sdk/openai"
+import { openai } from "@ai-sdk/openai"
+import { generateText } from "ai"
 
 type BrandVoiceData = {
   businessName: string
@@ -22,7 +23,6 @@ export async function generateBrandVoice(
       ? data.businessValues.join(", ")
       : data.businessValues || "Not specified"
 
-    // Improved prompt with more specific pillar guidance
     const prompt = `
 Generate a brand voice for ${data.businessName} focused specifically on written content.
 
@@ -36,23 +36,10 @@ Business Context:
 Create a content-focused brand voice with:
 1. An executive summary (2-3 sentences) that describes how the brand should sound in ALL written content
 2. Three brand voice pillars for writers, each with:
-  - A SINGLE WORD adjective title (CRITICAL: must be ONE WORD only, like "Bold", "Witty", "Compassionate")
+  - A SINGLE WORD adjective title
   - 3 specific "What it means" guidelines with concrete writing techniques, language choices, and content approaches
   - 3 specific "What it doesn't mean" guidelines focusing on writing pitfalls, content mistakes, and tone errors to avoid
   - A brand inspiration example that specifically highlights how another brand uses similar writing styles in their content
-
-IMPORTANT GUIDELINES FOR PILLAR GENERATION:
-- Each pillar MUST have a SINGLE WORD adjective title (e.g., "Bold", "Sincere", "Playful")
-- Avoid generic terms like "Professional", "Innovative", "Trustworthy"
-- Choose distinct pillars that complement each other (e.g., don't use "Friendly" and "Approachable" as separate pillars)
-- Make pillars practical and immediately applicable for content writers
-
-Examples of good pillar names:
-- Bold: Uses confident, direct language with strong statements
-- Witty: Incorporates clever wordplay and subtle humor
-- Compassionate: Shows deep empathy and understanding for user needs
-- Vibrant: Uses colorful, energetic language that feels alive
-- Precise: Focuses on accuracy, clarity, and specificity in all statements
 
 Format as JSON:
 {
@@ -60,7 +47,7 @@ Format as JSON:
  "pillars": [
    {
      "id": "pillar-1",
-     "title": "SingleWordPillar",
+     "title": "PillarName",
      "means": ["Specific writing technique 1", "Specific language choice 2", "Specific content approach 3"],
      "doesntMean": ["Specific writing pitfall 1", "Specific content mistake 2", "Specific tone error 3"],
      "inspiration": "Brand Example – Brief explanation of their writing style and how it applies to ${data.businessName}"
@@ -70,8 +57,6 @@ Format as JSON:
 
 Return ONLY the JSON object without any markdown formatting or additional text.`
 
-    console.log("[GenerateBrandVoice] Sending prompt:", prompt);
-
     const { text } = await generateText({
       model: openai("gpt-4o"),
       prompt,
@@ -79,28 +64,20 @@ Return ONLY the JSON object without any markdown formatting or additional text.`
       temperature: 0.7,
     })
 
-    console.log("[GenerateBrandVoice] Received raw response:", text.substring(0, 150) + "...");
-
     // Clean the response to remove any markdown formatting
     const cleanedText = cleanJsonResponse(text)
-    console.log("[GenerateBrandVoice] Cleaned response (first 150 chars):", cleanedText.substring(0, 150) + "...");
 
     try {
       const brandVoice = JSON.parse(cleanedText)
-      
-      // Debug log the parsed pillars
-      console.log("[GenerateBrandVoice] Generated brand voice with pillars:", 
-        brandVoice?.pillars?.map((p, i) => `${i+1}. ${p.title}`).join(", ") || "none");
-      
       return { success: true, data: brandVoice }
     } catch (error) {
-      console.error("[GenerateBrandVoice] Failed to parse JSON:", error)
-      console.error("[GenerateBrandVoice] Raw text:", text)
-      console.error("[GenerateBrandVoice] Cleaned text:", cleanedText)
+      console.error("Failed to parse JSON:", error)
+      console.error("Raw text:", text)
+      console.error("Cleaned text:", cleanedText)
       return { success: false, error: "Failed to parse generated content. Please try again." }
     }
   } catch (error) {
-    console.error("[GenerateBrandVoice] Error generating brand voice:", error)
+    console.error("Error generating brand voice:", error)
     return { success: false, error: "Failed to generate brand voice. Please try again." }
   }
 }
@@ -122,12 +99,7 @@ export async function regeneratePillar(
       .filter((_, index) => index !== pillarIndex)
       .map((pillar) => pillar.title)
       .join(", ")
-      
-    console.log("[RegeneratePillar] Regenerating pillar", pillarIndex, 
-      "Current pillar:", existingPillars[pillarIndex]?.title || "unknown",
-      "Other pillars:", otherPillars);
 
-    // Improved prompt with clearer guidance
     const prompt = `
 Generate a new brand voice pillar for ${data.businessName}'s written content, founded in ${data.yearFounded}.
 
@@ -138,20 +110,16 @@ Core Values: ${businessValues}
 Additional Info: ${data.additionalInfo || "None provided"}
 Existing Pillars: ${otherPillars}
 
+First, analyze what would complement the existing voice pillars for written content:
+1. What writing style would work well with the existing pillars?
+2. What emotional response or perception would enhance the overall written brand voice?
+
 IMPORTANT GUIDELINES FOR THE NEW PILLAR:
-- The pillar MUST be a SINGLE WORD adjective (e.g., "Bold", "Witty", "Precise")
-- The pillar must complement the existing pillars: ${otherPillars}
+- The pillar MUST be a SINGLE WORD adjective
+- Choose a pillar that complements the existing pillars: ${otherPillars}
 - The pillar should be practical and immediately applicable to content creation and writing
-- The new pillar MUST be different from the one being replaced: "${existingPillars[pillarIndex]?.title || 'unknown'}"
-
-Examples of strong, specific pillar names:
-- Bold: Uses confident, direct language with strong statements
-- Witty: Incorporates clever wordplay and subtle humor
-- Compassionate: Shows deep empathy and understanding for user needs
-- Vibrant: Uses colorful, energetic language that feels alive
-- Precise: Focuses on accuracy, clarity, and specificity in all statements
-
-Avoid generic, overused terms like: Consistent, Innovative, Professional, Empathetic, Authentic, Friendly, Informative, Ethical, Sustainable, Engaging, Dynamic, Trustworthy, Customer-centric, Reliable, Effective, Insightful, Quality-driven, Strategic, Visionary
+- The new pillar MUST be different from the one being replaced: ${existingPillars[pillarIndex].title}
+- Avoid generic, overused terms like: Consistent, Innovative, Professional, Empathetic, Authentic, Friendly, Informative, Ethical, Sustainable, Engaging, Dynamic, Trustworthy, Customer-centric, Reliable, Effective, Insightful, Quality-driven, Strategic, Visionary
 
 For the pillar:
 1. Use a SINGLE WORD adjective as the title
@@ -161,7 +129,7 @@ For the pillar:
 
 Format the response as a structured JSON object with this structure:
 {
-"id": "pillar-${pillarIndex + 1}",
+"id": "pillar-id",
 "title": "SingleWordAdjective",
 "means": ["Specific writing technique 1", "Specific language choice 2", "Specific content approach 3"],
 "doesntMean": ["Specific writing pitfall 1", "Specific content mistake 2", "Specific tone error 3"],
@@ -170,9 +138,11 @@ Format the response as a structured JSON object with this structure:
 
 IMPORTANT: 
 - The pillar MUST be a SINGLE WORD adjective
+- The pillar should complement the existing pillars
+- The pillar must be immediately useful for content creators and writers
 - Return ONLY the JSON object without any markdown formatting or additional text`
 
-    console.log("[RegeneratePillar] Sending prompt for pillar regeneration");
+    console.log("Sending prompt for pillar regeneration:", prompt)
 
     const { text } = await generateText({
       model: openai("gpt-4o"),
@@ -181,20 +151,19 @@ IMPORTANT:
       temperature: 0.7,
     })
 
-    console.log("[RegeneratePillar] Raw response (first 150 chars):", text.substring(0, 150) + "...");
+    console.log("Raw response from API:", text)
 
     // Clean the response to remove any markdown formatting
     const cleanedText = cleanJsonResponse(text)
-    console.log("[RegeneratePillar] Cleaned response (first 150 chars):", cleanedText.substring(0, 150) + "...");
+    console.log("Cleaned response:", cleanedText)
 
     try {
       const pillarData = JSON.parse(cleanedText)
-      console.log("[RegeneratePillar] Generated new pillar:", pillarData.title);
       return { success: true, data: pillarData }
     } catch (error) {
-      console.error("[RegeneratePillar] Failed to parse JSON:", error)
-      console.error("[RegeneratePillar] Raw text preview:", text.substring(0, 150) + "...")
-      console.error("[RegeneratePillar] Cleaned text preview:", cleanedText.substring(0, 150) + "...")
+      console.error("Failed to parse JSON:", error)
+      console.error("Raw text:", text)
+      console.error("Cleaned text:", cleanedText)
       return {
         success: false,
         error: "Failed to parse generated content. Please try again.",
@@ -202,8 +171,8 @@ IMPORTANT:
       }
     }
   } catch (error) {
-    console.error("[RegeneratePillar] Error generating pillar:", error)
-    return { success: false, error: "Failed to generate brand voice pillar. Please try again." }
+    console.error("Error generating brand voice:", error)
+    return { success: false, error: "Failed to generate brand voice. Please try again." }
   }
 }
 

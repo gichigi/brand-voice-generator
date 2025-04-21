@@ -1,14 +1,35 @@
-import type { Metadata } from 'next'
-// Import globals.css first, then component-specific CSS
-import './globals.css'
-import './brand-voice-highlights.css'
-// CSS test file no longer needed
-// import './css-test.css'
+import type React from "react"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { Toaster } from "@/components/ui/toaster"
+import { ConvexProvider } from "@/lib/convex-provider"
+import { AuthProvider } from "@/lib/auth-context"
+// Import the NavigationHandler
+import { NavigationHandler } from "@/components/navigation-handler"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: 'Choir - Harmonizing Your Brand Voice',
-  description: 'Choir helps you find, create, and maintain your perfect brand voice across all content channels with AI-powered harmony.',
-  generator: 'v0.dev',
+  title: "Choir | Harmonizing Your Brand Voice",
+  description:
+    "Create content that resonates with your audience. Choir helps you find your unique brand voice and compose compelling content that sings.",
+  keywords: "brand voice, content creation, AI writing, brand consistency, marketing content",
+  openGraph: {
+    title: "Choir | Harmonizing Your Brand Voice",
+    description:
+      "Create content that resonates with your audience. Choir helps you find your unique brand voice and compose compelling content that sings.",
+    type: "website",
+    locale: "en_US",
+    url: "https://choirapp.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Choir | Harmonizing Your Brand Voice",
+    description:
+      "Create content that resonates with your audience. Choir helps you find your unique brand voice and compose compelling content that sings.",
+  },
+    generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -18,9 +39,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        {/* CSS test marker no longer needed */}
-        {children}
+      <body className={inter.className}>
+        <ConvexProvider>
+          <AuthProvider>
+            {/* Add NavigationHandler here */}
+            <NavigationHandler />
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </ConvexProvider>
       </body>
     </html>
   )

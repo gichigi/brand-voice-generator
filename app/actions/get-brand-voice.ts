@@ -1,49 +1,57 @@
 "use server"
 
 import { getBrandVoice as getBrandVoiceFromStorage } from "@/lib/data-service"
-import { fallbackBrandVoice } from "@/lib/fallback-brand-voice"
-import { BrandVoicePillar } from "@/lib/types"
+
+// Fallback brand voice data if everything else fails
+const fallbackBrandVoice = {
+  executiveSummary: "Our brand voice is vibrant, empathetic, and action-oriented.",
+  pillars: [
+    {
+      id: "fallback-1",
+      title: "Vibrant",
+      means: ["Use colorful language", "Create vivid imagery", "Energize the reader"],
+      doesntMean: ["Overly casual", "Unprofessional", "Exaggerated"],
+      inspiration: "We bring ideas to life with dynamic, colorful expression.",
+    },
+    {
+      id: "fallback-2",
+      title: "Empathetic",
+      means: ["Acknowledge feelings", "Show understanding", "Connect personally"],
+      doesntMean: ["Overly emotional", "Presumptuous", "Insincere"],
+      inspiration: "We genuinely understand and address our audience's needs and concerns.",
+    },
+    {
+      id: "fallback-3",
+      title: "Action-Oriented",
+      means: ["Use strong verbs", "Provide clear next steps", "Inspire movement"],
+      doesntMean: ["Demanding", "Pushy", "Unrealistic"],
+      inspiration: "We motivate readers to take meaningful action through powerful calls to action.",
+    },
+  ],
+}
 
 export async function getBrandVoice() {
   try {
-    console.log("[GetBrandVoice] Attempting to get brand voice data");
-    
     // Try to get from localStorage (client-side)
     if (typeof window !== "undefined") {
       const savedData = localStorage.getItem("generatedBrandVoice")
-      
       if (savedData) {
-        const parsedData = JSON.parse(savedData);
-        console.log("[GetBrandVoice] Found data in localStorage with", 
-          parsedData?.pillars?.length || 0, "pillars:", 
-          parsedData?.pillars?.map((p: BrandVoicePillar) => p.title).join(", ") || "none");
-        return { success: true, data: parsedData }
-      } else {
-        console.log("[GetBrandVoice] No data found in localStorage, checking data service");
+        return { success: true, data: JSON.parse(savedData) }
       }
     }
 
     // Try to get from our data service
     const brandVoice = await getBrandVoiceFromStorage()
     if (brandVoice) {
-      console.log("[GetBrandVoice] Found data in data service with", 
-        brandVoice?.pillars?.length || 0, "pillars:", 
-        brandVoice?.pillars?.map((p: BrandVoicePillar) => p.title).join(", ") || "none");
       return { success: true, data: brandVoice }
-    } else {
-      console.log("[GetBrandVoice] No data found in data service, using fallback");
     }
 
     // Return fallback data if nothing is found
-    console.log("[GetBrandVoice] Using fallback brand voice with", 
-      fallbackBrandVoice.pillars.length, "pillars:", 
-      fallbackBrandVoice.pillars.map((p: BrandVoicePillar) => p.title).join(", "));
     return { success: true, data: fallbackBrandVoice }
   } catch (error) {
-    console.error("[GetBrandVoice] Error fetching brand voice:", error)
+    console.error("Error fetching brand voice:", error)
 
     // Ultimate fallback
-    console.log("[GetBrandVoice] Error occurred, using fallback brand voice");
     return {
       success: true,
       data: fallbackBrandVoice,

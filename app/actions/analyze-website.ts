@@ -1,6 +1,7 @@
 "use server"
 
-import { openai, generateText } from "@ai-sdk/openai"
+import { openai } from "@ai-sdk/openai"
+import { generateText } from "ai"
 
 export async function analyzeWebsite(url: string): Promise<{ description: string; error?: string }> {
   try {

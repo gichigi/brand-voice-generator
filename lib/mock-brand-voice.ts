@@ -1,48 +1,27 @@
-// This is a mock implementation of the brand voice data
-const mockBrandVoice = {
-  executiveSummary: "Our brand voice is confident, approachable, and innovative.",
+// Default brand voice for fallback
+export const defaultBrandVoice = {
+  executiveSummary: "Our brand voice is vibrant, empathetic, and action-oriented.",
   pillars: [
     {
-      id: "confident",
-      title: "Confident",
-      means: ["Use assertive language", "Provide clear, actionable advice", "Back statements with data or expertise"],
-      doesntMean: ["Being arrogant or dismissive", "Ignoring customer concerns", "Overstating capabilities"],
-      inspiration: "Apple - They confidently present their products as revolutionary.",
+      id: "fallback-1",
+      title: "Vibrant",
+      means: ["Use colorful language", "Create vivid imagery", "Energize the reader"],
+      doesntMean: ["Overly casual", "Unprofessional", "Exaggerated"],
+      inspiration: "We bring ideas to life with dynamic, colorful expression.",
     },
     {
-      id: "approachable",
-      title: "Approachable",
-      means: ["Use conversational language", "Explain complex concepts simply", "Address the reader directly"],
-      doesntMean: [
-        "Using slang or overly casual language",
-        "Oversimplifying important details",
-        "Losing professionalism",
-      ],
-      inspiration: "Mailchimp - Their communication style is friendly and easy to understand.",
+      id: "fallback-2",
+      title: "Empathetic",
+      means: ["Acknowledge feelings", "Show understanding", "Connect personally"],
+      doesntMean: ["Overly emotional", "Presumptuous", "Insincere"],
+      inspiration: "We genuinely understand and address our audience's needs and concerns.",
     },
     {
-      id: "innovative",
-      title: "Innovative",
-      means: [
-        "Highlight new ideas and approaches",
-        "Use forward-thinking language",
-        "Encourage creative problem-solving",
-      ],
-      doesntMean: [
-        "Dismissing traditional methods entirely",
-        "Using buzzwords without substance",
-        "Promoting untested ideas",
-      ],
-      inspiration: "Tesla - They position themselves at the forefront of automotive innovation.",
+      id: "fallback-3",
+      title: "Action-Oriented",
+      means: ["Use strong verbs", "Provide clear next steps", "Inspire movement"],
+      doesntMean: ["Demanding", "Pushy", "Unrealistic"],
+      inspiration: "We motivate readers to take meaningful action through powerful calls to action.",
     },
   ],
-}
-
-export function getMockBrandVoice() {
-  // Simulate an asynchronous API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockBrandVoice)
-    }, 500) // Simulate a 500ms delay
-  })
 }

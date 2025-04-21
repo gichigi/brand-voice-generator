@@ -6,6 +6,34 @@ import { Button } from "@/components/ui/button"
 import { PlusCircle, BookOpen, ChevronRight } from "lucide-react"
 import { useEffect, useState } from "react"
 
+// Define the consistent fallback brand voice
+const FALLBACK_BRAND_VOICE = {
+  executiveSummary: "Our brand voice is vibrant, empathetic, and action-oriented.",
+  pillars: [
+    {
+      id: "fallback-1",
+      title: "Vibrant",
+      means: ["Use colorful language", "Create vivid imagery", "Energize the reader"],
+      doesntMean: ["Overly casual", "Unprofessional", "Exaggerated"],
+      inspiration: "We bring ideas to life with dynamic, colorful expression.",
+    },
+    {
+      id: "fallback-2",
+      title: "Empathetic",
+      means: ["Acknowledge feelings", "Show understanding", "Connect personally"],
+      doesntMean: ["Overly emotional", "Presumptuous", "Insincere"],
+      inspiration: "We genuinely understand and address our audience's needs and concerns.",
+    },
+    {
+      id: "fallback-3",
+      title: "Action-Oriented",
+      means: ["Use strong verbs", "Provide clear next steps", "Inspire movement"],
+      doesntMean: ["Demanding", "Pushy", "Unrealistic"],
+      inspiration: "We motivate readers to take meaningful action through powerful calls to action.",
+    },
+  ],
+}
+
 export default function Dashboard() {
   const router = useRouter()
   const [brandVoice, setBrandVoice] = useState<any>(null)
@@ -16,10 +44,20 @@ export default function Dashboard() {
     try {
       const storedBrandVoice = localStorage.getItem("generatedBrandVoice")
       if (storedBrandVoice) {
-        setBrandVoice(JSON.parse(storedBrandVoice))
+        const parsedBrandVoice = JSON.parse(storedBrandVoice)
+        setBrandVoice(parsedBrandVoice)
+        console.log("Loaded stored brand voice:", parsedBrandVoice.executiveSummary)
+      } else {
+        // Set the fallback brand voice if none exists
+        console.log("No stored brand voice found, using fallback")
+        setBrandVoice(FALLBACK_BRAND_VOICE)
+        localStorage.setItem("generatedBrandVoice", JSON.stringify(FALLBACK_BRAND_VOICE))
       }
     } catch (error) {
       console.error("Error loading brand voice data:", error)
+      // Use fallback on error
+      setBrandVoice(FALLBACK_BRAND_VOICE)
+      localStorage.setItem("generatedBrandVoice", JSON.stringify(FALLBACK_BRAND_VOICE))
     } finally {
       setIsLoading(false)
     }
@@ -95,7 +133,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">No brand voice created yet</p>
+                <p className="text-sm text-muted-foreground">Default brand voice available</p>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
             )}

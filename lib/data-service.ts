@@ -1,8 +1,35 @@
-// Import shared types
-import { BrandVoice, ContentItem } from "./types"
-import { fallbackBrandVoice } from "./fallback-brand-voice"
+// Type definitions
+export interface ContentItem {
+  id: string
+  contentType: string
+  topic: string
+  content: string
+  outline?: string
+  htmlContent?: string
+  markdownContent?: string
+  keywords?: string
+  customContext?: string
+  referenceUrl?: string
+  contentOutline?: string
+  wordCount?: number
+  brandVoiceId?: string
+  businessInfoId?: string
+  highlights?: any[] // Add this line
+  createdAt: string
+  updatedAt?: string
+}
 
-// Other types
+export interface BrandVoice {
+  executiveSummary: string
+  pillars: Array<{
+    id: string
+    title: string
+    means: string[]
+    doesntMean: string[]
+    inspiration: string
+  }>
+}
+
 export type OnboardingData = {
   businessName: string
   yearFounded: string
@@ -20,8 +47,7 @@ function generateId(): string {
 // Brand Voice
 export function saveBrandVoice(brandVoice: BrandVoice): boolean {
   try {
-    localStorage.setItem("generatedBrandVoice", JSON.stringify(brandVoice))
-    console.log("[DataService] Saved brand voice with", brandVoice?.pillars?.length || 0, "pillars");
+    localStorage.setItem("brandVoice", JSON.stringify(brandVoice))
     return true
   } catch (error) {
     console.error("Error saving brand voice:", error)
@@ -31,22 +57,11 @@ export function saveBrandVoice(brandVoice: BrandVoice): boolean {
 
 export function getBrandVoice(): BrandVoice {
   try {
-    // Check if we're in a browser environment before using localStorage
-    if (typeof window !== 'undefined') {
-      // IMPORTANT: Changed from "brandVoice" to "generatedBrandVoice" to match the key used elsewhere
-      const brandVoice = localStorage.getItem("generatedBrandVoice")
-      console.log("[DataService] Loading brand voice from localStorage:", 
-                 brandVoice ? `Found with ${JSON.parse(brandVoice)?.pillars?.length || 0} pillars` : "Not found");
-      
-      return brandVoice ? JSON.parse(brandVoice) : fallbackBrandVoice
-    } else {
-      // Server-side rendering fallback
-      console.log("[DataService] Server-side rendering, using fallback brand voice");
-      return fallbackBrandVoice
-    }
+    const brandVoice = localStorage.getItem("brandVoice")
+    return brandVoice ? JSON.parse(brandVoice) : getDefaultBrandVoice()
   } catch (error) {
     console.error("Error retrieving brand voice:", error)
-    return fallbackBrandVoice
+    return getDefaultBrandVoice()
   }
 }
 
@@ -199,6 +214,36 @@ export function isOnboardingCompleted(): boolean {
   }
 }
 
+// Get default brand voice
+function getDefaultBrandVoice(): BrandVoice {
+  return {
+    executiveSummary: "Our brand voice is clear, helpful, and authentic.",
+    pillars: [
+      {
+        id: "fallback-1",
+        title: "Clear",
+        means: ["Use simple language", "Avoid jargon", "Be concise"],
+        doesntMean: ["Oversimplified", "Vague", "Incomplete"],
+        inspiration: "We communicate complex ideas in accessible ways.",
+      },
+      {
+        id: "fallback-2",
+        title: "Helpful",
+        means: ["Focus on solutions", "Anticipate needs", "Provide value"],
+        doesntMean: ["Pushy", "Patronizing", "Overpromising"],
+        inspiration: "We prioritize being useful over being promotional.",
+      },
+      {
+        id: "fallback-3",
+        title: "Authentic",
+        means: ["Be honest", "Show personality", "Stay consistent"],
+        doesntMean: ["Unprofessional", "Oversharing", "Inconsistent"],
+        inspiration: "We build trust through genuine communication.",
+      },
+    ],
+  }
+}
+
 export function getContent(id: string): ContentItem | null {
   try {
     const contents = getContents()
@@ -218,5 +263,19 @@ export function updateContentCache(newContents: ContentItem[]) {
 declare global {
   interface Window {
     _cachedContents?: ContentItem[]
+  }
+}
+
+// Add this function to check if a brand voice has been generated
+export function hasBrandVoiceBeenGenerated(): boolean {
+  try {
+    const brandVoice = localStorage.getItem("brandVoice")
+    // If brandVoice exists in localStorage and is not the default, return true
+    return (
+      !!brandVoice && brandVoice.includes('"executiveSummary"') && !brandVoice.includes("clear, helpful, and authentic")
+    )
+  } catch (error) {
+    console.error("Error checking if brand voice has been generated:", error)
+    return false
   }
 }

@@ -8,9 +8,6 @@ import { Loader2, RefreshCw } from "lucide-react"
 import { RichTextEditor } from "./rich-text-editor"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
-import { HighlightedContent } from "@/components/highlighted-content"
-import type { BrandVoiceHighlight } from "@/lib/brand-voice-highlight"
-import { analyzeBrandVoice } from "@/app/actions/analyze-brand-voice"
 
 interface ContentGeneratorProps {
   topic: string
@@ -22,26 +19,10 @@ interface ContentGeneratorProps {
 
 export function ContentGenerator({ topic, keywords, targetAudience, contentLength, onSave }: ContentGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [generatedTitle, setGeneratedTitle] = useState("")
   const [generatedContent, setGeneratedContent] = useState("")
-  const [brandVoice, setBrandVoice] = useState<any>(null)
-  const [brandVoiceHighlights, setBrandVoiceHighlights] = useState<BrandVoiceHighlight[]>([])
   const { toast } = useToast()
   const router = useRouter()
-
-  // Load brand voice from localStorage on mount
-  useEffect(() => {
-    const brandVoiceData = localStorage.getItem("generatedBrandVoice")
-    if (brandVoiceData) {
-      try {
-        const parsedBrandVoice = JSON.parse(brandVoiceData)
-        setBrandVoice(parsedBrandVoice)
-      } catch (error) {
-        console.error("Error parsing brand voice data:", error)
-      }
-    }
-  }, [])
 
   // Generate content on component mount
   useEffect(() => {
@@ -50,33 +31,14 @@ export function ContentGenerator({ topic, keywords, targetAudience, contentLengt
     }
   }, [topic])
 
-  // Analyze content for brand voice elements
-  const analyzeContent = async (content: string) => {
-    if (!content || !brandVoice) return
-
-    setIsAnalyzing(true)
-
-    try {
-      const highlights = await analyzeBrandVoice(content, brandVoice)
-      setBrandVoiceHighlights(highlights)
-
-      if (highlights.length > 0) {
-        console.log(`Found ${highlights.length} brand voice elements in the content`)
-      } else {
-        console.log("No brand voice elements found in the content")
-      }
-    } catch (error) {
-      console.error("Error analyzing content for brand voice:", error)
-    } finally {
-      setIsAnalyzing(false)
-    }
-  }
-
   const generateContent = async () => {
     setIsGenerating(true)
-    setBrandVoiceHighlights([]) // Clear previous highlights
 
     try {
+      // Get brand voice from localStorage
+      const brandVoiceData = localStorage.getItem("generatedBrandVoice")
+      const brandVoice = brandVoiceData ? JSON.parse(brandVoiceData) : null
+
       // Get business info from localStorage
       const businessInfoData = localStorage.getItem("businessInfo")
       const businessInfo = businessInfoData ? JSON.parse(businessInfoData) : null
@@ -109,7 +71,7 @@ export function ContentGenerator({ topic, keywords, targetAudience, contentLengt
         // Add brand voice elements if available
         if (brandVoice && brandVoice.pillars && brandVoice.pillars.length > index % 3) {
           const pillar = brandVoice.pillars[index % 3]
-          content += `${pillar.whatItMeans?.[0] || pillar.means?.[0] || ""} `
+          content += `${pillar.whatItMeans[0]} `
         }
 
         content += `This is especially important for ${targetAudience} because it directly impacts their experience and results.</p>`
@@ -121,7 +83,7 @@ export function ContentGenerator({ topic, keywords, targetAudience, contentLengt
 
       // Add brand voice to conclusion if available
       if (brandVoice && brandVoice.pillars && brandVoice.pillars.length > 0) {
-        content += `Remember, ${brandVoice.pillars[0].whatItMeans?.[1] || brandVoice.pillars[0].means?.[1] || ""} `
+        content += `Remember, ${brandVoice.pillars[0].whatItMeans[1]} `
       }
 
       content += `We hope this guide has provided valuable insights into ${topic}.</p>`
@@ -133,9 +95,6 @@ export function ContentGenerator({ topic, keywords, targetAudience, contentLengt
         title: "Content generated!",
         description: "Your blog content has been created successfully.",
       })
-
-      // Analyze the content for brand voice elements
-      await analyzeContent(content)
     } catch (error) {
       console.error("Error generating content:", error)
       toast({
@@ -146,19 +105,6 @@ export function ContentGenerator({ topic, keywords, targetAudience, contentLengt
     } finally {
       setIsGenerating(false)
     }
-  }
-
-  const handleContentChange = async (newContent: string) => {
-    setGeneratedContent(newContent)
-
-    // Debounce the analysis to avoid too many API calls
-    if (window.analysisTimeout) {
-      clearTimeout(window.analysisTimeout)
-    }
-
-    window.analysisTimeout = setTimeout(() => {
-      analyzeContent(newContent)
-    }, 1000)
   }
 
   const handleSave = () => {
@@ -218,18 +164,7 @@ export function ContentGenerator({ topic, keywords, targetAudience, contentLengt
                 <CardDescription className="pt-1.5">Keywords: {keywords.join(", ")}</CardDescription>
               </CardHeader>
               <CardContent>
-                {isAnalyzing ? (
-                  <div className="flex items-center justify-center py-4">
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    <span className="text-sm text-muted-foreground">Analyzing brand voice...</span>
-                  </div>
-                ) : (
-                  <HighlightedContent
-                    content={generatedContent}
-                    highlights={brandVoiceHighlights}
-                    brandVoice={brandVoice}
-                  />
-                )}
+                <div dangerouslySetInnerHTML={{ __html: generatedContent }} />
               </CardContent>
             </Card>
             <div className="flex justify-end">
@@ -251,26 +186,7 @@ export function ContentGenerator({ topic, keywords, targetAudience, contentLengt
                 <CardDescription className="pt-1.5">Keywords: {keywords.join(", ")}</CardDescription>
               </CardHeader>
               <CardContent>
-                <RichTextEditor initialValue={generatedContent} onChange={handleContentChange} />
-
-                {/* Show legend below editor */}
-                {brandVoiceHighlights.length > 0 && !isAnalyzing && (
-                  <div className="mt-4">
-                    <HighlightedContent
-                      content=""
-                      highlights={brandVoiceHighlights}
-                      brandVoice={brandVoice}
-                      showLegend={true}
-                    />
-                  </div>
-                )}
-
-                {isAnalyzing && (
-                  <div className="flex items-center mt-4 text-sm text-muted-foreground">
-                    <Loader2 className="h-3 w-3 animate-spin mr-2" />
-                    Analyzing brand voice...
-                  </div>
-                )}
+                <RichTextEditor initialValue={generatedContent} onChange={setGeneratedContent} />
               </CardContent>
             </Card>
             <div className="flex justify-end">
