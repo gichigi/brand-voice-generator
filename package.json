@@ -61,11 +61,11 @@
     "@auth0/auth0-react": "latest",
     "@clerk/clerk-react": "latest",
     "ws": "latest",
-    "@tailwindcss/typography": "latest",
     "@ai-sdk/openai": "latest",
     "ai": "latest",
     "convex": "latest",
-    "openai": "latest"
+    "openai": "latest",
+    "@tailwindcss/typography": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

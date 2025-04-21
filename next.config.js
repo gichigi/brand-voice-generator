@@ -5,10 +5,6 @@ const nextConfig = {
     domains: ["placeholder.com", "via.placeholder.com"],
     unoptimized: true,
   },
-  // Ensure environment variables are properly exposed
-  env: {
-    // Add any public environment variables here
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
