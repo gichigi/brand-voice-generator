@@ -5,7 +5,6 @@ import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { ConvexProvider } from "@/lib/convex-provider"
 import { AuthProvider } from "@/lib/auth-context"
-// Import the NavigationHandler
 import { NavigationHandler } from "@/components/navigation-handler"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -42,7 +41,6 @@ export default function RootLayout({
       <body className={inter.className}>
         <ConvexProvider>
           <AuthProvider>
-            {/* Add NavigationHandler here */}
             <NavigationHandler />
             {children}
             <Toaster />
