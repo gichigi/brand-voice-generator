@@ -1,4 +1,10 @@
 {
-  "buildCommand": "pnpm install --no-frozen-lockfile && pnpm run build",
-  "installCommand": "pnpm install --no-frozen-lockfile"
+  "functions": {
+    "app/api/generate-content/route.ts": {
+      "maxDuration": 60
+    },
+    "app/actions/generate-content.ts": {
+      "maxDuration": 60
+    }
+  }
 }

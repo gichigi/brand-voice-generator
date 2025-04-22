@@ -25,7 +25,7 @@ export async function POST(req: Request): Promise<Response> {
         { role: "assistant", content: assistantMessage || "" },
         { role: "user", content: prompt },
       ],
-      stream: false,
+      stream: true,
       temperature: 0.3,
     })
 
