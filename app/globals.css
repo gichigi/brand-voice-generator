@@ -136,13 +136,14 @@
   background-color: rgba(236, 72, 153, 0.15) !important;
 }
 
-/* Tooltip styles */
+/* Replace with this improved version that ensures only one tooltip appears */
 .brand-voice-highlight:hover::after {
   content: attr(title) !important;
-  position: absolute !important;
-  bottom: 100% !important;
+  position: fixed !important; /* Changed from absolute to fixed */
+  bottom: auto !important; /* Remove bottom positioning */
   left: 50% !important;
-  transform: translateX(-50%) !important;
+  top: var(--tooltip-y, 0) !important; /* Use CSS variable for dynamic positioning */
+  transform: translateX(-50%) translateY(-100%) !important; /* Position above cursor */
   background: #333 !important;
   color: white !important;
   padding: 4px 8px !important;
@@ -150,8 +151,9 @@
   font-size: 12px !important;
   font-weight: normal !important;
   white-space: nowrap !important;
-  z-index: 10 !important;
+  z-index: 1000 !important; /* Higher z-index to ensure it's on top */
   pointer-events: none !important;
+  margin-top: -8px !important; /* Add some space between tooltip and element */
 }
 
 /* Prevent overlapping highlights */

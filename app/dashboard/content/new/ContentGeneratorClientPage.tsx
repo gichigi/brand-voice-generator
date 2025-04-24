@@ -21,10 +21,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 
 // Add these imports at the top of the file
 import { BrandVoicePillars } from "@/components/brand-voice-pillars"
-import { HighlightedContent } from "@/components/highlighted-content"
 import { getHighlightToggleState, setHighlightToggleState } from "@/lib/highlight-utils"
 import { Switch } from "@/components/ui/switch"
-import { analyzeBrandVoiceAlignment, type HighlightSegment } from "@/app/actions/analyze-brand-voice-alignment"
+import type { HighlightSegment } from "@/app/actions/analyze-brand-voice-alignment"
+
+// Add this import at the top of the file
+import { applyHighlightsToHtml } from "@/lib/client-highlight-utils"
 
 // Add this near the top of the file, after the imports
 // Define the consistent fallback brand voice with more distinctive pillars
@@ -63,6 +65,7 @@ export default function ContentGeneratorClientPage() {
   const outlineTextareaRef = useRef<HTMLTextAreaElement>(null)
   const businessDescriptionRef = useRef<HTMLTextAreaElement>(null)
   const customContextRef = useRef<HTMLTextAreaElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const [topic, setTopic] = useState("")
   const [contentLength, setContentLength] = useState("short")
@@ -103,6 +106,8 @@ export default function ContentGeneratorClientPage() {
     "Structuring content for maximum impact...",
     "Refining language to match your brand identity...",
     "Ensuring content aligns with your business values...",
+    "Analyzing content for brand voice alignment...", // Add analysis-specific messages
+    "Highlighting brand voice elements...",
   ]
 
   // Auto-resize textarea function
@@ -368,7 +373,7 @@ export default function ContentGeneratorClientPage() {
     }
   }
 
-  // Then update the analyzeContent function to use this fallback
+  // Update the analyzeContent function to use client-side analysis
   const analyzeContent = async (content: string) => {
     if (!content) {
       console.log("❌ Cannot analyze content: missing content")
@@ -412,31 +417,37 @@ export default function ContentGeneratorClientPage() {
     setIsAnalyzingContent(true)
 
     try {
-      const result = await analyzeBrandVoiceAlignment(content, brandVoiceData.pillars)
+      // Call the client-side API endpoint instead of the server action
+      console.log("🔍 Calling analyze-brand-voice API endpoint")
+      const response = await fetch("/api/analyze-brand-voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content,
+          brandVoicePillars: brandVoiceData.pillars,
+        }),
+      })
 
-      console.log(
-        "✅ Analysis result:",
-        JSON.stringify(
-          {
-            success: result.success,
-            highlightsCount: result?.highlights?.length || 0,
-            hasHighlightedHtml: !!result.highlightedHtml,
-            debugInfo: result.debugInfo,
-          },
-          null,
-          2,
-        ),
-      )
+      if (!response.ok) {
+        throw new Error(`API returned status ${response.status}`)
+      }
+
+      const result = await response.json()
+      console.log("✅ Received API response:", result.success ? "Success" : "Failed")
 
       if (result.success) {
         if (result.highlights) {
           setContentHighlights(result.highlights)
           console.log("✅ Set content highlights:", result.highlights.length)
-        }
-        if (result.highlightedHtml) {
-          setHighlightedHtml(result.highlightedHtml)
-          console.log("✅ Set highlighted HTML, length:", result.highlightedHtml.length)
-          console.log("🔍 Highlighted HTML sample:", result.highlightedHtml.substring(0, 200) + "...")
+
+          // Generate highlighted HTML using DOM APIs on the client side
+          try {
+            const html = applyHighlightsToHtml(content, result.highlights)
+            setHighlightedHtml(html)
+            console.log("✅ Set highlighted HTML, length:", html.length)
+          } catch (error) {
+            console.error("❌ Error applying highlights to HTML:", error)
+          }
         }
         return result.highlights || []
       } else {
@@ -458,32 +469,6 @@ export default function ContentGeneratorClientPage() {
       return []
     } finally {
       setIsAnalyzingContent(false)
-    }
-  }
-
-  // Handle manual refresh of highlights
-  const handleRefreshHighlights = async () => {
-    if (!generatedContent) {
-      toast({
-        title: "No content",
-        description: "Please generate content before analyzing",
-        variant: "destructive",
-      })
-      return
-    }
-
-    const highlights = await analyzeContent(generatedContent)
-
-    if (highlights.length > 0) {
-      toast({
-        title: "Analysis Complete",
-        description: `Found ${highlights.length} brand voice elements in your content.`,
-      })
-    } else {
-      toast({
-        title: "Analysis Complete",
-        description: "No brand voice elements were identified. Try adding more content.",
-      })
     }
   }
 
@@ -665,23 +650,23 @@ Important formatting instructions:
 
           // Wrap in a stylized div
           content = `
-     <div class="prose prose-slate dark:prose-invert max-w-none space-y-4 font-inter linkedin-post">
-       ${content
-         .split("\n\n")
-         .map((paragraph) => `<p>${paragraph}</p>`)
-         .join("")}
-     </div>
-     `
+   <div class="prose prose-slate dark:prose-invert max-w-none space-y-4 font-inter linkedin-post">
+     ${content
+       .split("\n\n")
+       .map((paragraph) => `<p>${paragraph}</p>`)
+       .join("")}
+   </div>
+   `
         } else {
           // For blog posts, use the existing HTML cleaning
           content = cleanHtmlContent(result.data)
 
           // Wrap in a div with proper styling
           content = `
-     <div class="prose prose-slate dark:prose-invert max-w-none space-y-6 font-inter">
-       ${content}
-     </div>
-     `
+   <div class="prose prose-slate dark:prose-invert max-w-none space-y-6 font-inter">
+     ${content}
+   </div>
+   `
         }
 
         console.log("✅ Content processed, length:", content.length)
@@ -696,23 +681,33 @@ Important formatting instructions:
         const markdown = htmlToMarkdown(content)
         setMarkdownContent(markdown)
 
+        // Store the content but don't end the loading state yet
         setGeneratedContent(content)
         setIsEditing(false) // Start with viewing mode instead of editing
 
-        // Analyze the content for brand voice alignment
+        // Now perform the analysis before ending the loading state
         console.log("🚀 Starting brand voice analysis")
-        const analysisResult = await analyzeContent(content)
-        console.log("✅ Brand voice analysis completed, highlights:", analysisResult.length)
 
-        // Force a re-render to ensure highlights are displayed
-        setTimeout(() => {
-          console.log("🔄 Forcing re-render to ensure highlights are displayed")
-          setShowHighlights((prev) => {
-            // Toggle twice to force a re-render
-            setShowHighlights(!prev)
-            return prev
-          })
-        }, 500)
+        // Update loading message to show we're analyzing
+        setLoadingMessageIndex(5) // Use the analysis-specific message
+
+        try {
+          const analysisResult = await analyzeContent(content)
+          console.log("✅ Brand voice analysis completed, highlights:", analysisResult.length)
+
+          // Add this code to force a re-render after both content and highlights are set
+          setTimeout(() => {
+            console.log("🔄 Forcing re-render to ensure highlights are displayed")
+            // This will ensure the HighlightedContent component gets both content and highlights
+            setGeneratedContent((prev) => {
+              console.log("🔄 Re-setting content to force re-render")
+              return prev
+            })
+          }, 100)
+        } catch (error) {
+          console.error("❌ Error during content analysis:", error)
+          // Even if analysis fails, we still show the content
+        }
       } else {
         console.error("❌ Content generation failed:", result.error)
         toast({
@@ -729,6 +724,7 @@ Important formatting instructions:
         variant: "destructive",
       })
     } finally {
+      // End the loading state after both generation AND analysis
       setIsGeneratingContent(false)
       setIsProcessingUrl(false)
     }
@@ -989,6 +985,69 @@ Important formatting instructions:
     setShowHighlights(checked)
     setHighlightToggleState(checked)
   }
+
+  // Add this function to handle refreshing highlights
+  const handleRefreshHighlights = async () => {
+    if (generatedContent) {
+      await analyzeContent(generatedContent)
+    }
+  }
+
+  // Add event listeners to update tooltip position based on mouse movement
+  // This ensures tooltips appear at the cursor position and don't overlap
+
+  // Find the useEffect that handles highlights visibility
+  useEffect(() => {
+    if (contentRef.current) {
+      try {
+        console.log("🔄 HighlightedContent: Updating content display", {
+          showHighlights,
+          hasHighlightedHtml: !!highlightedHtml,
+          contentLength: generatedContent?.length || 0,
+        })
+
+        if (showHighlights && highlightedHtml) {
+          console.log("🔍 HighlightedContent: Showing highlighted HTML")
+          contentRef.current.innerHTML = highlightedHtml
+        } else {
+          console.log("🔍 HighlightedContent: Showing plain content")
+          contentRef.current.innerHTML = generatedContent
+        }
+      } catch (error) {
+        console.error("❌ HighlightedContent: Error updating content:", error)
+        // Fallback to basic content
+        contentRef.current.innerHTML = generatedContent
+      }
+    }
+  }, [showHighlights, highlightedHtml, generatedContent])
+
+  // Add this new useEffect after it to handle tooltip positioning
+  useEffect(() => {
+    // Add event listener for tooltip positioning
+    const handleMouseMove = (e) => {
+      // Set a CSS variable for tooltip Y position based on mouse position
+      document.documentElement.style.setProperty("--tooltip-y", `${e.clientY}px`)
+    }
+
+    // Add the event listener when highlights are shown
+    if (showHighlights && contentRef.current) {
+      document.addEventListener("mousemove", handleMouseMove)
+
+      // Add event listeners to all highlight spans
+      const highlightElements = contentRef.current.querySelectorAll(".brand-voice-highlight")
+      highlightElements.forEach((element) => {
+        // Ensure only one tooltip is shown at a time by preventing event bubbling
+        element.addEventListener("mouseenter", (e) => {
+          e.stopPropagation()
+        })
+      })
+    }
+
+    // Clean up event listeners
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove)
+    }
+  }, [showHighlights, highlightedHtml])
 
   if (isLoading) {
     return (
@@ -1284,11 +1343,8 @@ Important formatting instructions:
                   </div>
                 ) : (
                   <div className="relative min-h-[500px]">
-                    <HighlightedContent
-                      content={generatedContent}
-                      highlights={contentHighlights}
-                      highlightedHtml={highlightedHtml}
-                      showHighlights={showHighlights}
+                    <div
+                      ref={contentRef}
                       className="min-h-[500px] border rounded-md p-6 bg-white dark:bg-slate-900 dark:text-slate-100 overflow-auto font-inter"
                     />
 

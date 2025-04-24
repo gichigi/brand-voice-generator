@@ -264,7 +264,7 @@ export default function ContentLibrary() {
             </div>
           ) : filteredItems.length > 0 ? (
             filteredItems.map((item) => (
-              <Card key={item.id} className="cursor-pointer hover:bg-muted/50 transition-colors border shadow-sm">
+              <Card key={item.id} className="border shadow-sm">
                 <CardContent className="p-6">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">

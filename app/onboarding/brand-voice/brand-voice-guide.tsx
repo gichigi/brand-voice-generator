@@ -3,49 +3,37 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, Star, X, Minus, RefreshCw, AlertCircle } from "lucide-react"
+import { ArrowRight, X, Minus, RefreshCw, AlertCircle, Star } from "lucide-react"
 import { regeneratePillar } from "@/app/actions/generate-brand-voice"
-import { LoadingMessages } from "@/components/loading-messages"
-import { toast } from "sonner"
+import { useToast } from "@/components/ui/use-toast"
+import { LoadingSpinner } from "@/components/loading-spinner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
-// Define the consistent fallback brand voice
-const FALLBACK_BRAND_VOICE = {
-  executiveSummary: "Our brand voice is vibrant, empathetic, and action-oriented.",
-  pillars: [
-    {
-      id: "fallback-1",
-      title: "Vibrant",
-      means: ["Use colorful language", "Create vivid imagery", "Energize the reader"],
-      doesntMean: ["Overly casual", "Unprofessional", "Exaggerated"],
-      inspiration: "We bring ideas to life with dynamic, colorful expression.",
-    },
-    {
-      id: "fallback-2",
-      title: "Empathetic",
-      means: ["Acknowledge feelings", "Show understanding", "Connect personally"],
-      doesntMean: ["Overly emotional", "Presumptuous", "Insincere"],
-      inspiration: "We genuinely understand and address our audience's needs and concerns.",
-    },
-    {
-      id: "fallback-3",
-      title: "Action-Oriented",
-      means: ["Use strong verbs", "Provide clear next steps", "Inspire movement"],
-      doesntMean: ["Demanding", "Pushy", "Unrealistic"],
-      inspiration: "We motivate readers to take meaningful action through powerful calls to action.",
-    },
-  ],
-}
-
-interface BrandVoiceGuideProps {
+type BrandVoiceData = {
   businessName: string
   yearFounded: string
   businessDescription: string
-  businessValues: string[]
   selectedDemographics?: string[]
-  additionalInfo?: string
-  generatedData?: any
-  onRegeneratePillar: (index: number, newPillar: any) => void
+  businessValues: string[] | string
+  additionalInfo: string
+}
+
+const loadingMessages = [
+  "Analyzing your business values...",
+  "Crafting your unique voice pillars...",
+  "Finding the perfect tone...",
+  "Polishing your brand personality...",
+]
+
+function LoadingMessages({ context }: { context: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center space-y-2">
+      <LoadingSpinner />
+      <p className="text-sm text-muted-foreground">
+        {loadingMessages[Math.floor(Math.random() * loadingMessages.length)]}
+      </p>
+    </div>
+  )
 }
 
 export function BrandVoiceGuide({
@@ -57,9 +45,20 @@ export function BrandVoiceGuide({
   additionalInfo,
   generatedData,
   onRegeneratePillar,
-}: BrandVoiceGuideProps) {
+}: {
+  businessName: string
+  yearFounded: string
+  businessDescription: string
+  businessValues: string[] | string
+  selectedDemographics?: string[]
+  additionalInfo?: string
+  generatedData?: any
+  onRegeneratePillar: (index: number, newPillar: any) => void
+}) {
+  const { toast } = useToast()
   const [regeneratingPillar, setRegeneratingPillar] = useState<number | null>(null)
   const [regenerationError, setRegenerationError] = useState<string | null>(null)
+  const [hasChanges, setHasChanges] = useState(false)
 
   // Use the generated data if available, otherwise use default data
   const executiveSummary =
@@ -77,7 +76,7 @@ export function BrandVoiceGuide({
   ]
 
   // Use the generated pillars if available, otherwise use default pillars
-  const brandVoicePillars = generatedData?.pillars || FALLBACK_BRAND_VOICE.pillars
+  const brandVoicePillars = generatedData?.pillars || []
 
   // Add color information to the pillars if using generated data
   const coloredPillars = (generatedData?.pillars || brandVoicePillars).map((pillar, index) => {
@@ -88,11 +87,21 @@ export function BrandVoiceGuide({
     }
   })
 
+  // Notify parent component when changes are made
+  useEffect(() => {
+    if (hasChanges) {
+      // This will bubble up to the parent component
+      const event = new CustomEvent("brandVoiceChanged", { detail: { changed: true } })
+      window.dispatchEvent(event)
+    }
+  }, [hasChanges])
+
   const handleRegeneratePillar = async (index: number) => {
     if (!generatedData) return
 
     setRegeneratingPillar(index)
     setRegenerationError(null)
+    setHasChanges(true)
 
     try {
       // Create a simplified version of the pillars for the server action
@@ -217,7 +226,7 @@ export function BrandVoiceGuide({
         description: "We couldn't generate a custom brand voice. Showing example pillars instead.",
       })
     }
-  }, [generatedData, regeneratingPillar])
+  }, [generatedData, regeneratingPillar, toast])
 
   return (
     <div className="space-y-8">

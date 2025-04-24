@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
+import { applyHighlightsToHtml } from "@/lib/client-highlight-utils"
 
 export interface HighlightSegment {
   text: string
@@ -28,6 +29,7 @@ export function HighlightedContent({
   activePillars, // We'll keep this prop but not use it
 }: HighlightedContentProps) {
   const [debugMode, setDebugMode] = useState(false)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   // Add debug info
   useEffect(() => {
@@ -49,20 +51,49 @@ export function HighlightedContent({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [content, highlights, highlightedHtml, showHighlights, debugMode])
 
-  // Function to render content with or without highlights
-  const renderContent = () => {
-    if (!showHighlights || !highlightedHtml) {
-      console.log("🔍 Rendering original content (no highlights)")
-      return <div dangerouslySetInnerHTML={{ __html: content }} />
+  // Apply highlights client-side if we have content but no highlightedHtml
+  useEffect(() => {
+    if (content && highlights.length > 0 && !highlightedHtml && contentRef.current) {
+      console.log("🔍 HighlightedContent: Applying highlights client-side")
+      try {
+        const html = applyHighlightsToHtml(content, highlights)
+        if (showHighlights) {
+          contentRef.current.innerHTML = html
+        }
+      } catch (error) {
+        console.error("❌ HighlightedContent: Error applying highlights client-side:", error)
+      }
     }
+  }, [content, highlights, highlightedHtml, showHighlights])
 
-    console.log("🔍 Rendering content with highlights")
-    return <div dangerouslySetInnerHTML={{ __html: highlightedHtml }} />
-  }
+  // Toggle highlights visibility
+  useEffect(() => {
+    if (contentRef.current) {
+      try {
+        console.log("🔄 HighlightedContent: Updating content display", {
+          showHighlights,
+          hasHighlightedHtml: !!highlightedHtml,
+          contentLength: content?.length || 0,
+        })
+
+        if (showHighlights && highlightedHtml) {
+          console.log("🔍 HighlightedContent: Showing highlighted HTML")
+          contentRef.current.innerHTML = highlightedHtml
+        } else {
+          console.log("🔍 HighlightedContent: Showing plain content")
+          contentRef.current.innerHTML = content
+        }
+      } catch (error) {
+        console.error("❌ HighlightedContent: Error updating content:", error)
+        // Fallback to basic content
+        contentRef.current.innerHTML = content
+      }
+    }
+  }, [showHighlights, highlightedHtml, content])
 
   return (
     <div className={className}>
-      {renderContent()}
+      <div ref={contentRef} />
 
       {/* Debug information - only visible when debug mode is enabled */}
       {debugMode && (

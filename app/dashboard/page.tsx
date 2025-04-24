@@ -63,6 +63,11 @@ export default function Dashboard() {
     }
   }, [])
 
+  // Handle click on brand voice card
+  const handleBrandVoiceClick = () => {
+    router.push("/onboarding/brand-voice")
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-8">
       <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -98,10 +103,7 @@ export default function Dashboard() {
 
       {/* Brand Voice Card - less prominent but full width */}
       <div className="mt-6">
-        <Card
-          className="hover:shadow-md transition-shadow cursor-pointer"
-          onClick={() => router.push("/onboarding/brand-voice")}
-        >
+        <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleBrandVoiceClick}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Brand Voice</CardTitle>
             <CardDescription>View and update your brand voice pillars</CardDescription>

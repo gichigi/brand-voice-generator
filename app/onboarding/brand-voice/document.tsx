@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -25,6 +25,16 @@ export function BrandVoiceDocument({
 }: BrandVoiceDocumentProps) {
   const [editing, setEditing] = useState<string | null>(null)
   const [editedContent, setEditedContent] = useState("")
+  const [hasChanges, setHasChanges] = useState(false)
+
+  // Notify parent component when changes are made
+  useEffect(() => {
+    if (hasChanges) {
+      // This will bubble up to the parent component
+      const event = new CustomEvent("brandVoiceChanged", { detail: { changed: true } })
+      window.dispatchEvent(event)
+    }
+  }, [hasChanges])
 
   const brandVoicePillars = [
     {
@@ -87,17 +97,18 @@ export function BrandVoiceDocument({
     onSave({ [section]: editedContent })
     setEditing(null)
     setEditedContent("")
+    setHasChanges(true)
   }
 
   const sampleBlogPost = `
-    Introducing ${businessName}: Your Partner in [Main Value Proposition]
+   Introducing ${businessName}: Your Partner in [Main Value Proposition]
 
-    In today's fast-paced digital landscape, [common pain point] has become a critical challenge for businesses. At ${businessName}, we understand this firsthand. Since ${yearFounded}, we've been ${businessDescription.toLowerCase()}.
+   In today's fast-paced digital landscape, [common pain point] has become a critical challenge for businesses. At ${businessName}, we understand this firsthand. Since ${yearFounded}, we've been ${businessDescription.toLowerCase()}.
 
-    Our approach is simple but powerful. We combine ${businessValues[0]} with ${businessValues[1]} to deliver solutions that make a real difference. Whether you're [target audience pain point] or [another pain point], we're here to help.
+   Our approach is simple but powerful. We combine ${businessValues[0]} with ${businessValues[1]} to deliver solutions that make a real difference. Whether you're [target audience pain point] or [another pain point], we're here to help.
 
-    Ready to transform how you [key benefit]? Let's start this journey together.
-  `
+   Ready to transform how you [key benefit]? Let's start this journey together.
+ `
 
   return (
     <div className="space-y-8">
