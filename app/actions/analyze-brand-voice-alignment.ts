@@ -1,8 +1,5 @@
 "use server"
 
-// Add Edge Runtime configuration
-export const runtime = "edge"
-
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
 
@@ -114,12 +111,12 @@ For each match, provide:
 
 FORMAT YOUR RESPONSE AS A JSON ARRAY:
 [
- {
-   "text": "exact phrase from content",
-   "pillarIndex": 0,
-   "startIndex": 123,
-   "endIndex": 135
- }
+  {
+    "text": "exact phrase from content",
+    "pillarIndex": 0,
+    "startIndex": 123,
+    "endIndex": 135
+  }
 ]
 
 Return ONLY the JSON array, no other text.

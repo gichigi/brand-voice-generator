@@ -119,8 +119,9 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Brand Voice Card - less prominent but full width */}
-      <div className="mt-6">
+      {/* Brand Voice and Feedback Cards - 2x2 grid layout */}
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Brand Voice Card */}
         <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={handleBrandVoiceClick}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Brand Voice</CardTitle>
@@ -157,6 +158,23 @@ export default function Dashboard() {
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Feedback Card */}
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader>
+            <CardTitle>Hit me with feedback</CardTitle>
+            <CardDescription>It'll take 3mins tops, I promise.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              onClick={() => window.open("https://17447213116029723.a.freeform.computer/respond/5AdunDyoF-w", "_blank")}
+              className="w-full"
+              variant="outline"
+            >
+              Give feedback
+            </Button>
           </CardContent>
         </Card>
       </div>

@@ -2,8 +2,6 @@ import { NextResponse } from "next/server"
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
 
-export const runtime = "edge"
-
 export async function POST(request: Request) {
   console.log("🔍 API: analyze-brand-voice endpoint called")
 
@@ -57,11 +55,11 @@ For each match, provide:
 
 FORMAT YOUR RESPONSE AS A JSON ARRAY:
 [
- {
-   "text": "exact phrase from content",
-   "pillarIndex": 0,
-   "reason": "brief explanation of why this matches the pillar"
- }
+  {
+    "text": "exact phrase from content",
+    "pillarIndex": 0,
+    "reason": "brief explanation of why this matches the pillar"
+  }
 ]
 
 Return ONLY the JSON array, no other text.
