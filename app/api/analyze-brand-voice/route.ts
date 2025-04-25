@@ -2,6 +2,9 @@ import { NextResponse } from "next/server"
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
 
+// Add Edge Runtime configuration
+export const runtime = "edge"
+
 export async function POST(request: Request) {
   console.log("🔍 API: analyze-brand-voice endpoint called")
 

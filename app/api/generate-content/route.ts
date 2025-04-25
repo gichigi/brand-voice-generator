@@ -1,8 +1,7 @@
-import OpenAI from "openai"
-
-// Optional, but recommended: run on the edge runtime.
-// See https://vercel.com/docs/concepts/functions/edge-functions
+// Add Edge Runtime configuration
 export const runtime = "edge"
+
+import OpenAI from "openai"
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,

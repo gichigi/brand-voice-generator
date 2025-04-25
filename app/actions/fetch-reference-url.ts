@@ -1,5 +1,8 @@
 "use server"
 
+// Add Edge Runtime configuration
+export const runtime = "edge"
+
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
 
