@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { PlusCircle, BookOpen, ChevronRight } from "lucide-react"
 import { useEffect, useState } from "react"
+import { toast } from "@/components/ui/use-toast"
 
 // Define the consistent fallback brand voice
 const FALLBACK_BRAND_VOICE = {
@@ -39,8 +40,16 @@ export default function Dashboard() {
   const [brandVoice, setBrandVoice] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  // Load brand voice data on mount
   useEffect(() => {
+    // Apply fade-in effect on mount
+    document.body.classList.add("fade-in")
+    setTimeout(() => {
+      document.body.classList.remove("fade-in")
+    }, 10)
+
+    // Also remove fade-out if it's present (for return visits)
+    document.body.classList.remove("fade-out")
+
     try {
       const storedBrandVoice = localStorage.getItem("generatedBrandVoice")
       if (storedBrandVoice) {
@@ -52,6 +61,15 @@ export default function Dashboard() {
         console.log("No stored brand voice found, using fallback")
         setBrandVoice(FALLBACK_BRAND_VOICE)
         localStorage.setItem("generatedBrandVoice", JSON.stringify(FALLBACK_BRAND_VOICE))
+      }
+
+      // Check if we just saved the brand voice and show toast
+      if (localStorage.getItem("justSaved")) {
+        toast({
+          title: "Brand voice saved",
+          description: "Your brand voice was saved successfully.",
+        })
+        localStorage.removeItem("justSaved")
       }
     } catch (error) {
       console.error("Error loading brand voice data:", error)

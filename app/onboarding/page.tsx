@@ -36,29 +36,29 @@ const steps: OnboardingStep[] = [
         id: "businessName",
         label: "Business Name",
         type: "input",
-        placeholder: "e.g., PixelPals Social",
+        placeholder: "Apple Inc.",
       },
       {
         id: "yearFounded",
         label: "Year Founded",
         type: "input",
-        placeholder: "e.g., 2022",
+        placeholder: "2001",
       },
     ],
   },
   {
     title: "Business Description",
     description: "Tell us what your business does",
+    customComponent: "website-analyzer",
     fields: [
       {
         id: "businessDescription",
-        label: "What does your business do?",
+        label: "Or start typing below.",
         type: "textarea",
         placeholder:
-          "e.g., PixelPals Social is a quirky platform where users create pixel avatars and interact in virtual spaces. We monetize through premium accessories while keeping the core experience free.",
+          "Apple is a technology company known for creating beautifully designed hardware, intuitive software, and a seamless ecosystem. We design devices like the iPhone, Mac, and Apple Watch, and build platforms like iOS and iCloud to help people stay connected, creative, and secure.",
       },
     ],
-    customComponent: "website-analyzer",
   },
   {
     title: "Target Audience",
@@ -73,17 +73,17 @@ const steps: OnboardingStep[] = [
     customComponent: "business-values-selector",
   },
   {
-    title: "Additional Information",
-    description: "Anything else we should know?",
-    fields: [
-      {
-        id: "additionalInfo",
-        label: "Additional Information",
-        type: "textarea",
-        placeholder:
-          "Share any extra details that make your business unique:\n\n• Key product features\n• Competitive advantages\n• Upcoming initiatives\n• Brand personality traits",
-      },
-    ],
+title: "Additional Information",
+description: "Anything else we should know?",
+fields: [
+  {
+    id: "additionalInfo",
+    label: "Additional Information",
+    type: "textarea",
+    placeholder:
+      "Example for Apple:\n\n• Key products: iPhone, Mac, and growing services like iCloud and Apple Music\n\n• USPs: Seamless ecosystem, premium design, strong privacy focus\n\n• Upcoming: Apple Vision, expanded health and wellness features\n\n• Revenue: Growing emphasis on services and subscription revenue\n\n• Priorities: Innovation, simplicity, human-centered technology, privacy",
+  },
+] 
   },
 ]
 
@@ -309,6 +309,13 @@ export default function Onboarding() {
           </CardHeader>
 
           <CardContent className="space-y-4">
+            {currentStepData.customComponent === "website-analyzer" && (
+              <WebsiteAnalyzer
+                description={formData.businessDescription as string}
+                onDescriptionChange={(value) => handleInputChange("businessDescription", value)}
+              />
+            )}
+
             {currentStepData.fields.map((field) => (
               <div key={field.id} className="space-y-2">
                 <Label htmlFor={field.id}>{field.label}</Label>
@@ -350,13 +357,6 @@ export default function Onboarding() {
                 )}
               </div>
             ))}
-
-            {currentStepData.customComponent === "website-analyzer" && (
-              <WebsiteAnalyzer
-                description={formData.businessDescription as string}
-                onDescriptionChange={(value) => handleInputChange("businessDescription", value)}
-              />
-            )}
 
             {currentStepData.customComponent === "demographics-selector" && (
               <DemographicsSelector

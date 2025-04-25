@@ -55,6 +55,30 @@
   }
   body {
     @apply bg-background text-foreground;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  body.fade-out {
+    opacity: 0;
+  }
+
+  body.fade-in {
+    opacity: 0;
+  }
+}
+
+/* Content fade-in animation - Simplified to just fade in with no movement */
+.content-fade-in {
+  animation: simpleFadeIn 1s ease-out forwards;
+}
+
+@keyframes simpleFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

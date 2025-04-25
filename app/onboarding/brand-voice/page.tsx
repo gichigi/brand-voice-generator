@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Sparkles, Check, Loader2 } from "lucide-react"
+import { Sparkles, Check, Loader2, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { BrandVoiceGuide } from "./brand-voice-guide"
 import { LoadingSpinner } from "@/components/loading-spinner"
@@ -61,6 +61,15 @@ export default function BrandVoicePage() {
   const [buttonState, setButtonState] = useState<ButtonState>("default")
 
   useEffect(() => {
+    // Apply fade-in effect on mount
+    document.body.classList.add("fade-in")
+    setTimeout(() => {
+      document.body.classList.remove("fade-in")
+    }, 10)
+
+    // Also remove fade-out if it's present (for return visits)
+    document.body.classList.remove("fade-out")
+
     // Load the generated brand voice and form data
     const storedBrandVoice = localStorage.getItem("generatedBrandVoice")
     const storedFormData = localStorage.getItem("brandVoiceData")
@@ -136,12 +145,6 @@ export default function BrandVoicePage() {
   }
 
   const handleSaveAndReturn = async () => {
-    if (buttonState === "default") {
-      // No changes, just return to dashboard
-      router.push("/dashboard")
-      return
-    }
-
     // Start saving process
     setButtonState("saving")
 
@@ -152,19 +155,21 @@ export default function BrandVoicePage() {
       // Mark onboarding as completed
       setOnboardingCompleted(true)
 
-      // Show success state briefly
-      setButtonState("success")
+      // Set flag for dashboard to show success toast
+      localStorage.setItem("justSaved", "true")
 
-      // Show success toast
-      toast({
-        title: "Changes saved",
-        description: "Your brand voice has been updated successfully.",
-      })
-
-      // Wait a moment before navigating
+      // Show success state after a delay
       setTimeout(() => {
-        router.push("/dashboard")
-      }, 1000) // 1 second delay to show success state
+        setButtonState("success")
+
+        // Begin visual fade-out before redirect
+        document.body.classList.add("fade-out")
+
+        // Navigate to dashboard after fade-out animation
+        setTimeout(() => {
+          router.push("/dashboard")
+        }, 300)
+      }, 800)
     } catch (error) {
       console.error("Error saving brand voice:", error)
 
@@ -180,43 +185,12 @@ export default function BrandVoicePage() {
     }
   }
 
-  // Get button text and icon based on state
-  const getButtonContent = () => {
-    switch (buttonState) {
-      case "changed":
-        return <>Save & Return</>
-      case "saving":
-        return (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Saving...
-          </>
-        )
-      case "success":
-        return (
-          <>
-            <Check className="mr-2 h-4 w-4" />
-            Saved! Returning...
-          </>
-        )
-      case "default":
-      default:
-        return <>Return to Dashboard</>
-    }
-  }
-
-  // Get button variant based on state
-  const getButtonVariant = () => {
-    switch (buttonState) {
-      case "changed":
-        return "default"
-      case "success":
-        return "outline"
-      case "default":
-      case "saving":
-      default:
-        return "outline"
-    }
+  const handleBackToReview = () => {
+    // Apply fade-out before navigating
+    document.body.classList.add("fade-out")
+    setTimeout(() => {
+      router.push("/onboarding/review")
+    }, 300)
   }
 
   if (loading) {
@@ -257,7 +231,9 @@ export default function BrandVoicePage() {
 
       <div className="container max-w-4xl mx-auto py-12 px-4">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Your Brand Voice</h1>
+          <h1 className="text-3xl font-bold mb-2">
+            {formData?.businessName ? `${formData.businessName}'s Brand Voice` : "Your Brand Voice"}
+          </h1>
           <p className="text-muted-foreground">
             Here's your unique brand voice based on your business information. You can regenerate any pillar if needed.
           </p>
@@ -274,15 +250,35 @@ export default function BrandVoicePage() {
           onRegeneratePillar={handleRegeneratePillar}
         />
 
-        <div className="flex justify-end mt-8">
-          <Button
-            variant={getButtonVariant()}
-            onClick={handleSaveAndReturn}
-            disabled={buttonState === "saving" || buttonState === "success"}
-            className={`transition-all duration-300 ${buttonState === "success" ? "bg-green-100 text-green-800 border-green-300" : ""}`}
-          >
-            {getButtonContent()}
-          </Button>
+        <div className="mt-8">
+          <p className="text-sm text-muted-foreground italic text-center mb-4">
+            You can tweak your brand voice anytime.
+          </p>
+          <div className="flex justify-between items-center">
+            <Button variant="outline" onClick={handleBackToReview} className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Review
+            </Button>
+            <Button
+              onClick={handleSaveAndReturn}
+              disabled={buttonState === "saving" || buttonState === "success"}
+              className={`transition-all duration-300 ${buttonState === "success" ? "bg-green-100 text-green-800 border-green-300" : ""}`}
+            >
+              {buttonState === "saving" ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : buttonState === "success" ? (
+                <>
+                  <Check className="mr-2 h-4 w-4" />
+                  Saved.
+                </>
+              ) : (
+                <>Save and continue</>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

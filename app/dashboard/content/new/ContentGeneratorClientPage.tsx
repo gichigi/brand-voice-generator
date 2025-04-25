@@ -63,7 +63,7 @@ export default function ContentGeneratorClientPage() {
   const contentId = searchParams.get("id")
   const editorRef = useRef(null)
   const outlineTextareaRef = useRef<HTMLTextAreaElement>(null)
-  const businessDescriptionRef = useRef<HTMLTextAreaElement>(null)
+  const businessDescriptionRef = useRef(null)
   const customContextRef = useRef<HTMLTextAreaElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
 
@@ -97,6 +97,12 @@ export default function ContentGeneratorClientPage() {
   const [brandVoiceData, setBrandVoiceData] = useState<any>(null)
   const [activePillars, setActivePillars] = useState<number[]>([])
   const [highlightedHtml, setHighlightedHtml] = useState<string>("")
+
+  // Add a state to track if content should animate
+  const [shouldAnimateContent, setShouldAnimateContent] = useState(false)
+
+  // Track if animation has been applied to prevent multiple animations
+  const animationAppliedRef = useRef(false)
 
   // Content generation loading messages
   const loadingMessages = [
@@ -487,6 +493,8 @@ export default function ContentGeneratorClientPage() {
 
     // Reset states
     setIsGeneratingContent(true)
+    setShouldAnimateContent(false) // Reset animation state
+    animationAppliedRef.current = false // Reset animation applied flag
     setWordCount(0)
     setReferenceUrlProcessed(false)
     setReferenceUrlError("")
@@ -550,6 +558,9 @@ ${contentOutline}`
     : ""
 }
 ${keywords ? `Include these keywords naturally: ${keywords}` : ""}
+${customContext ? `Professional Context: ${customContext}` : ""}
+
+IMPORTANT LINKEDIN POST  : ""}
 ${customContext ? `Professional Context: ${customContext}` : ""}
 
 IMPORTANT LINKEDIN POST GUIDELINES:
@@ -695,18 +706,13 @@ Important formatting instructions:
           const analysisResult = await analyzeContent(content)
           console.log("✅ Brand voice analysis completed, highlights:", analysisResult.length)
 
-          // Add this code to force a re-render after both content and highlights are set
-          setTimeout(() => {
-            console.log("🔄 Forcing re-render to ensure highlights are displayed")
-            // This will ensure the HighlightedContent component gets both content and highlights
-            setGeneratedContent((prev) => {
-              console.log("🔄 Re-setting content to force re-render")
-              return prev
-            })
-          }, 100)
+          // Set animation flag to true after content and analysis are complete
+          setShouldAnimateContent(true)
+          console.log("🎬 Animation flag set to true, content should animate in")
         } catch (error) {
           console.error("❌ Error during content analysis:", error)
-          // Even if analysis fails, we still show the content
+          // Even if analysis fails, we still show the content and animate
+          setShouldAnimateContent(true)
         }
       } else {
         console.error("❌ Content generation failed:", result.error)
@@ -993,10 +999,7 @@ Important formatting instructions:
     }
   }
 
-  // Add event listeners to update tooltip position based on mouse movement
-  // This ensures tooltips appear at the cursor position and don't overlap
-
-  // Find the useEffect that handles highlights visibility
+  // UPDATED: Modified useEffect that handles content display and animation
   useEffect(() => {
     if (contentRef.current) {
       try {
@@ -1004,8 +1007,11 @@ Important formatting instructions:
           showHighlights,
           hasHighlightedHtml: !!highlightedHtml,
           contentLength: generatedContent?.length || 0,
+          shouldAnimate: shouldAnimateContent,
+          animationApplied: animationAppliedRef.current,
         })
 
+        // Set the content first
         if (showHighlights && highlightedHtml) {
           console.log("🔍 HighlightedContent: Showing highlighted HTML")
           contentRef.current.innerHTML = highlightedHtml
@@ -1013,13 +1019,41 @@ Important formatting instructions:
           console.log("🔍 HighlightedContent: Showing plain content")
           contentRef.current.innerHTML = generatedContent
         }
+
+        // Apply animation only if shouldAnimateContent is true and animation hasn't been applied yet
+        if (shouldAnimateContent && !animationAppliedRef.current && generatedContent) {
+          console.log("🎬 Applying fade-in animation")
+
+          // Remove any existing animation class first
+          contentRef.current.classList.remove("content-fade-in")
+
+          // Force a reflow before adding the animation class
+          void contentRef.current.offsetWidth
+
+          // Add the animation class
+          contentRef.current.classList.add("content-fade-in")
+
+          // Mark animation as applied to prevent re-applying
+          animationAppliedRef.current = true
+
+          console.log("🎬 Added content-fade-in class at:", new Date().toISOString())
+        }
       } catch (error) {
         console.error("❌ HighlightedContent: Error updating content:", error)
         // Fallback to basic content
-        contentRef.current.innerHTML = generatedContent
+        if (contentRef.current) {
+          contentRef.current.innerHTML = generatedContent
+        }
       }
     }
-  }, [showHighlights, highlightedHtml, generatedContent])
+  }, [showHighlights, highlightedHtml, generatedContent, shouldAnimateContent])
+
+  // Reset animation flag when content changes
+  useEffect(() => {
+    if (!generatedContent) {
+      animationAppliedRef.current = false
+    }
+  }, [generatedContent])
 
   // Add this new useEffect after it to handle tooltip positioning
   useEffect(() => {

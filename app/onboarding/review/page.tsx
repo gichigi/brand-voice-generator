@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { ArrowLeft, ArrowRight, Edit, Sparkles } from "lucide-react"
+import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { generateBrandVoice } from "@/app/actions/generate-brand-voice"
@@ -36,6 +36,17 @@ export default function Review() {
   const [generationError, setGenerationError] = useState<string | null>(null)
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
   const [checkingStatus, setCheckingStatus] = useState(true)
+
+  useEffect(() => {
+    // Apply fade-in effect on mount
+    document.body.classList.add("fade-in")
+    setTimeout(() => {
+      document.body.classList.remove("fade-in")
+    }, 10)
+
+    // Also remove fade-out if it's present (for return visits)
+    document.body.classList.remove("fade-out")
+  }, [])
 
   useEffect(() => {
     // Check if onboarding is already completed
@@ -101,7 +112,11 @@ export default function Review() {
         // Store the generated brand voice data
         localStorage.setItem("brandVoiceGenerated", "true")
         localStorage.setItem("generatedBrandVoice", JSON.stringify(result.data))
-        router.push("/onboarding/brand-voice")
+        // Apply fade-out before navigating
+        document.body.classList.add("fade-out")
+        setTimeout(() => {
+          router.push("/onboarding/brand-voice")
+        }, 300)
       } else {
         setGenerationError(result.error || "Failed to generate brand voice. Please try again.")
         toast({
@@ -190,15 +205,6 @@ export default function Review() {
             <div className="p-4 border rounded-md bg-white">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-lg">Business Information</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/onboarding?step=0")}
-                  className="flex items-center gap-1"
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>Edit</span>
-                </Button>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -216,15 +222,6 @@ export default function Review() {
             <div className="p-4 border rounded-md bg-white">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-lg">Business Description</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/onboarding?step=1")}
-                  className="flex items-center gap-1"
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>Edit</span>
-                </Button>
               </div>
               <p className="whitespace-pre-line">{formData.businessDescription}</p>
             </div>
@@ -233,15 +230,6 @@ export default function Review() {
             <div className="p-4 border rounded-md bg-white">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-lg">Target Demographics</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/onboarding?step=2")}
-                  className="flex items-center gap-1"
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>Edit</span>
-                </Button>
               </div>
               {formData.selectedDemographics && formData.selectedDemographics.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
@@ -260,15 +248,6 @@ export default function Review() {
             <div className="p-4 border rounded-md bg-white">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-lg">Business Values</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/onboarding?step=3")}
-                  className="flex items-center gap-1"
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>Edit</span>
-                </Button>
               </div>
               {Array.isArray(formData.businessValues) && formData.businessValues.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
@@ -287,15 +266,6 @@ export default function Review() {
             <div className="p-4 border rounded-md bg-white">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-medium text-lg">Additional Information</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => router.push("/onboarding?step=4")}
-                  className="flex items-center gap-1"
-                >
-                  <Edit className="h-4 w-4" />
-                  <span>Edit</span>
-                </Button>
               </div>
               {formData.additionalInfo ? (
                 <p className="whitespace-pre-line">{formData.additionalInfo}</p>

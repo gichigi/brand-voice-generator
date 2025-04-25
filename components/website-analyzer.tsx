@@ -73,29 +73,26 @@ export function WebsiteAnalyzer({ description, onDescriptionChange }: WebsiteAna
   }
 
   return (
-    <div className="space-y-4 mt-6">
+    <div className="space-y-4">
       <div className="bg-muted p-4 rounded-md">
-        <h3 className="font-medium mb-2">Don't want to write? Let us analyze your website</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Enter your website URL and we'll generate a description for you.
-        </p>
+        <h3 className="font-medium mb-2">Paste your site to generate a description.</h3>
         <div className="flex gap-2">
           <div className="flex-1">
             <Input
-              placeholder="e.g., pixelpals-social.com"
+              placeholder="apple.com"
               value={websiteUrl}
               onChange={(e) => setWebsiteUrl(e.target.value)}
               onKeyDown={handleKeyDown}
             />
           </div>
-          <Button onClick={handleAnalyzeWebsite} disabled={!websiteUrl || isAnalyzing}>
+          <Button onClick={handleAnalyzeWebsite} disabled={!websiteUrl || isAnalyzing} variant="outline">
             {isAnalyzing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing...
+                Generating...
               </>
             ) : (
-              "Analyze"
+              "Generate"
             )}
           </Button>
         </div>

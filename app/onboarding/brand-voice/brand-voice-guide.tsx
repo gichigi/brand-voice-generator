@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, X, Minus, RefreshCw, AlertCircle, Star } from "lucide-react"
+import { ArrowRight, Minus, AlertCircle } from "lucide-react"
 import { regeneratePillar } from "@/app/actions/generate-brand-voice"
 import { useToast } from "@/components/ui/use-toast"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Loader2 } from "lucide-react"
 
 type BrandVoiceData = {
   businessName: string
@@ -169,38 +170,6 @@ export function BrandVoiceGuide({
     }
   }
 
-  const highlightKeywords = (text: string) => {
-    if (!text) return "" // Handle undefined or empty text
-
-    const keywords = [
-      "confident",
-      "direct",
-      "inspire",
-      "action",
-      "playful",
-      "conversational",
-      "humor",
-      "approachable",
-      "clear",
-      "simple",
-      "transparent",
-      "trust",
-    ]
-
-    // Check if text contains the separator
-    if (!text.includes(" – ")) {
-      return text
-    }
-
-    return text.split(" ").map((word, index) => {
-      const lowerWord = word.toLowerCase().replace(/[^a-z]/g, "")
-      if (keywords.includes(lowerWord)) {
-        return <strong key={index}>{word} </strong>
-      }
-      return word + " "
-    })
-  }
-
   const formatInspiration = (inspiration: string) => {
     if (!inspiration) return ""
 
@@ -209,7 +178,7 @@ export function BrandVoiceGuide({
       const [brand, description] = inspiration.split(" – ")
       return (
         <>
-          <strong>{brand}</strong> – {highlightKeywords(description)}
+          <strong>{brand}</strong>: {description}
         </>
       )
     }
@@ -244,7 +213,26 @@ export function BrandVoiceGuide({
         </CardHeader>
         <CardContent>
           <div className="prose prose-slate max-w-none">
-            <p className="text-lg">{executiveSummary}</p>
+            <p className="text-lg">
+              {executiveSummary.split(" ").map((word, index) => {
+                const keywords = [
+                  "inspiring",
+                  "dynamic",
+                  "creativity",
+                  "collaboration",
+                  "sustainability",
+                  "innovation",
+                  "community",
+                  "resonates",
+                  "professionals",
+                ]
+                const lowerWord = word.toLowerCase().replace(/[^a-z]/g, "")
+                if (keywords.includes(lowerWord)) {
+                  return <strong key={index}>{word} </strong>
+                }
+                return word + " "
+              })}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -257,16 +245,12 @@ export function BrandVoiceGuide({
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold tracking-tight">{pillar.title}</h2>
                 <Button
-                  variant="ghost"
-                  size="icon"
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleRegeneratePillar(index)}
                   disabled={regeneratingPillar !== null}
                 >
-                  {regeneratingPillar === index ? (
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="h-4 w-4" />
-                  )}
+                  {regeneratingPillar === index ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <>Replace</>}
                 </Button>
               </div>
             </CardHeader>
@@ -280,10 +264,7 @@ export function BrandVoiceGuide({
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div>
-                        <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
-                          <ArrowRight className="h-5 w-5 text-primary" />
-                          What It Means
-                        </h3>
+                        <h3 className="font-medium mb-2">What It Means</h3>
                         <ul className="space-y-2">
                           {pillar.means.map((item, i) => (
                             <li key={i} className="flex items-start gap-2">
@@ -295,10 +276,7 @@ export function BrandVoiceGuide({
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
-                        <X className="h-5 w-5 text-destructive" />
-                        What It Doesn't Mean
-                      </h3>
+                      <h3 className="font-medium mb-2">What It Doesn't Mean</h3>
                       <ul className="space-y-2">
                         {pillar.doesntMean.map((item, i) => (
                           <li key={i} className="flex items-start gap-2">
@@ -311,13 +289,7 @@ export function BrandVoiceGuide({
                   </div>
 
                   <div className="pt-4 border-t">
-                    <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                      <Star className="h-5 w-5 text-amber-500" />
-                      Iconic Inspiration
-                    </h3>
-                    <div className="bg-white bg-opacity-50 p-4 rounded-md border border-slate-200">
-                      <p className="text-sm">{formatInspiration(pillar.inspiration)}</p>
-                    </div>
+                    <div className="text-sm">{formatInspiration(pillar.inspiration)}</div>
                   </div>
                 </div>
               )}
