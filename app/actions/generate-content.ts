@@ -1,8 +1,5 @@
 "use server"
 
-// Add Edge Runtime configuration
-export const runtime = "edge"
-
 import { openai } from "@ai-sdk/openai"
 import { generateText } from "ai"
 import { fetchReferenceUrl } from "./fetch-reference-url"
@@ -81,6 +78,65 @@ What are your thoughts on [TOPIC]? I'd love to hear your experiences in the comm
 function generateFallbackContent(contentType, topic) {
   const template = DEFAULT_CONTENT_TEMPLATES[contentType] || DEFAULT_CONTENT_TEMPLATES["blog-post"]
   return template.replace(/\[TOPIC\]/g, topic)
+}
+
+// Helper function to format brand voice data for the prompt - COMPLETELY REDESIGNED to avoid pillar titles
+function formatBrandVoiceForPrompt(brandVoice) {
+  // Validate the brand voice data structure
+  if (!brandVoice || !brandVoice.pillars || !Array.isArray(brandVoice.pillars) || brandVoice.pillars.length === 0) {
+    console.warn("Invalid brand voice data provided, using fallback")
+    brandVoice = FALLBACK_BRAND_VOICE
+  }
+
+  // Create a guide that describes voice characteristics without using pillar titles
+  const voiceGuide = brandVoice.pillars
+    .map((pillar, index) => {
+      return `
+Voice Characteristic ${index + 1}:
+Description: ${pillar.description || "No description provided"}
+How to apply this characteristic:
+- ${pillar.means ? pillar.means.join("\n- ") : "No specific guidelines provided"}
+What to avoid:
+- ${pillar.doesntMean ? pillar.doesntMean.join("\n- ") : "No specific guidelines provided"}
+`
+    })
+    .join("\n")
+
+  return `
+# BRAND VOICE GUIDELINES (HIGHEST PRIORITY)
+Brand Voice Summary: ${brandVoice.executiveSummary || "Clear, helpful, and authentic communication"}
+
+${voiceGuide}
+
+IMPORTANT: Write in this voice naturally without explicitly mentioning any of these characteristics by name.
+`
+}
+
+// Helper function to format business information for the prompt
+function formatBusinessInfoForPrompt(businessInfo) {
+  if (!businessInfo) return ""
+
+  return `
+# BUSINESS CONTEXT
+Business Name: ${businessInfo.businessName}
+Year Founded: ${businessInfo.yearFounded}
+Business Description: ${businessInfo.businessDescription}
+${
+  businessInfo.selectedDemographics && businessInfo.selectedDemographics.length > 0
+    ? `Target Audience: ${businessInfo.selectedDemographics.join(", ")}`
+    : ""
+}
+${
+  businessInfo.businessValues && businessInfo.businessValues.length > 0
+    ? `Core Values: ${
+        Array.isArray(businessInfo.businessValues)
+          ? businessInfo.businessValues.join(", ")
+          : businessInfo.businessValues
+      }`
+    : ""
+}
+${businessInfo.additionalInfo ? `Additional Information: ${businessInfo.additionalInfo}` : ""}
+`
 }
 
 export async function generateContent(
@@ -225,63 +281,4 @@ Please proceed with content generation based on your knowledge of the topic.`
       data: generateFallbackContent(contentType, topic),
     }
   }
-}
-
-// Helper function to format brand voice data for the prompt - COMPLETELY REDESIGNED to avoid pillar titles
-function formatBrandVoiceForPrompt(brandVoice) {
-  // Validate the brand voice data structure
-  if (!brandVoice || !brandVoice.pillars || !Array.isArray(brandVoice.pillars) || brandVoice.pillars.length === 0) {
-    console.warn("Invalid brand voice data provided, using fallback")
-    brandVoice = FALLBACK_BRAND_VOICE
-  }
-
-  // Create a guide that describes voice characteristics without using pillar titles
-  const voiceGuide = brandVoice.pillars
-    .map((pillar, index) => {
-      return `
-Voice Characteristic ${index + 1}:
-Description: ${pillar.description || "No description provided"}
-How to apply this characteristic:
-- ${pillar.means ? pillar.means.join("\n- ") : "No specific guidelines provided"}
-What to avoid:
-- ${pillar.doesntMean ? pillar.doesntMean.join("\n- ") : "No specific guidelines provided"}
-`
-    })
-    .join("\n")
-
-  return `
-# BRAND VOICE GUIDELINES (HIGHEST PRIORITY)
-Brand Voice Summary: ${brandVoice.executiveSummary || "Clear, helpful, and authentic communication"}
-
-${voiceGuide}
-
-IMPORTANT: Write in this voice naturally without explicitly mentioning any of these characteristics by name.
-`
-}
-
-// Helper function to format business information for the prompt
-function formatBusinessInfoForPrompt(businessInfo) {
-  if (!businessInfo) return ""
-
-  return `
-# BUSINESS CONTEXT
-Business Name: ${businessInfo.businessName}
-Year Founded: ${businessInfo.yearFounded}
-Business Description: ${businessInfo.businessDescription}
-${
-  businessInfo.selectedDemographics && businessInfo.selectedDemographics.length > 0
-    ? `Target Audience: ${businessInfo.selectedDemographics.join(", ")}`
-    : ""
-}
-${
-  businessInfo.businessValues && businessInfo.businessValues.length > 0
-    ? `Core Values: ${
-        Array.isArray(businessInfo.businessValues)
-          ? businessInfo.businessValues.join(", ")
-          : businessInfo.businessValues
-      }`
-    : ""
-}
-${businessInfo.additionalInfo ? `Additional Information: ${businessInfo.additionalInfo}` : ""}
-`
 }

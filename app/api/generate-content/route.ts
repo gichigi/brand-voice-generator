@@ -1,4 +1,3 @@
-// Add Edge Runtime configuration
 export const runtime = "edge"
 
 import OpenAI from "openai"
